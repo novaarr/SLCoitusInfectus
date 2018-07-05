@@ -15,9 +15,5 @@ event OnEffectFinish(Actor target, Actor caster)
 endEvent
 
 event OnUpdate()
-  PlayAnimation()
-endEvent
 
-function PlayAnimation()
-  Debug.SendAnimationEvent(targetRef, "test_animation")
-endFunction
+endEvent
