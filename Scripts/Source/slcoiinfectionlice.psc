@@ -1,7 +1,5 @@
 scriptname SLCoiInfectionLice extends SLCoiInfectionCommon hidden
 
-Idle property test auto
-
 string function GetName()
   return "Lice"
 endFunction
