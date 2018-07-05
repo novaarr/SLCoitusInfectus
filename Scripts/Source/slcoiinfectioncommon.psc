@@ -1,0 +1,6 @@
+scriptname SLCoiInfectionCommon extends SLCoiInfection hidden
+
+float property NonPlayerFakeInfectionProbability auto
+float property DefaultNonPlayerFakeInfectionProbability auto
+
+;float property Duration auto

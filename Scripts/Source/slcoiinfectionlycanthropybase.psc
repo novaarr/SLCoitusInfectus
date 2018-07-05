@@ -1,0 +1,1 @@
+scriptname SLCoiInfectionLycanthropyBase extends SLCoiInfection hidden

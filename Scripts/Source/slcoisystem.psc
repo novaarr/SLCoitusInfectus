@@ -1,0 +1,431 @@
+scriptname SLCoiSystem extends Quest hidden
+
+; Public Consts
+string property ModEventTry = "SLCoi_TryInfectActor" autoReadOnly
+
+int property SceneWaitTime = 2 autoReadOnly
+int property MaxSceneWaitTime = 20 autoReadOnly
+
+int property InfectionCauseVaginal = 1 autoReadOnly
+int property InfectionCauseAnal = 2 autoReadOnly
+int property InfectionCauseOral = 4 autoReadOnly
+int property InfectionCauseAll = 7 autoReadOnly
+
+; Options
+bool property OptDebug auto
+
+bool isActive = false
+bool property OptActive
+  bool function Get()
+    return isActive
+  endFunction
+
+  function Set(bool set_active)
+    if(set_active == isActive)
+      return
+    else
+      isActive = set_active
+    endIf
+
+    if(isActive)
+      Setup()
+    else
+      Shutdown()
+    endIf
+  endFunction
+endProperty
+
+bool property OptNPCInfections auto
+int property OptInfectionCause auto
+
+; Internal
+Actor property PlayerRef auto
+SexLabFramework property SexLab auto
+SLCoiInfectionRegistry property Infections auto
+
+string settingsPath = "./data/slcoitusinfectus/config.json"
+
+; Support for mods starting scenes
+DefeatConfig SLDefeatConfig = None
+zadLibs SLDeviousDevicesLib = None
+
+; System
+function LoadSupportedMods()
+  Quest Defeat = Quest.GetQuest("DefeatRessourcesQst")
+  Quest DDi = Quest.GetQuest("zadQuest")
+
+  if(Defeat)
+    DebugMessage("Detected: Defeat")
+    SLDefeatConfig = Defeat as DefeatConfig
+  endIf
+
+  if(DDi)
+    DebugMessage("Detected: Devious Devices Integration (DDi)")
+    SLDeviousDevicesLib = DDi as zadLibs
+  endIf
+endFunction
+
+function UnloadSupportedMods()
+  SLDefeatConfig = None
+  SLDeviousDevicesLib = None
+endFunction
+
+function Setup(bool isCellLoad = false)
+  if(!isActive)
+    DebugMessage("Mod not active")
+    return
+  endif
+
+  ; Re-/Loading the registry if the game is loaded to make sure
+  ; that the previously supported mods are still running.
+  if(!isCellLoad)
+    Infections.Load()
+
+    LoadSupportedMods()
+  endIf
+
+  RegisterForModEvent("PlayerTrack_End", "OnSexLabAnimationEnd")
+  RegisterForModEvent(ModEventTry, "OnTryInfectActor")
+
+  DebugMessage("Running")
+endFunction
+
+function Shutdown()
+  DebugMessage("Shutdown (Stopping receival of external events)")
+
+  UnregisterForModEvent("OnSexLabAnimationEnd")
+  UnregisterforModEvent("OnTryInfectActor")
+
+  UnloadSupportedMods()
+
+  Infections.Unload()
+endFunction
+
+function Restart()
+  if(!isActive)
+    return
+  endIf
+
+  Shutdown()
+  Setup()
+endFunction
+
+; Debug stuff
+function DebugMessage(string msg)
+  if(OptDebug)
+    Debug.Trace("[SLCoitusInfectus] " + msg)
+  endIf
+endFunction
+
+; Import / Export of settings
+function SettingsImport()
+  int settings = JValue.readFromFile(settingsPath)
+
+  OptInfectionCause = JMap.getInt(settings, "General.InfectionCause")
+  OptNPCInfections = JMap.getInt(settings, "General.NPCInfections") as bool
+  OptDebug = JMap.getInt(settings, "General.Debug") as bool
+
+  Infections.SetLycanthropy(JMap.getForm(settings, "General.Infections.Lycanthropy") as SLCoiInfectionLycanthropyBase)
+  ;Infections.SetVampirism(JMap.getForm(settings, "General.Infections.Vampirism") as SLCoiInfectionVampirismBase)
+  Infections.SetSuccubusCurse(JMap.getForm(settings, "General.Infections.SuccubusCurse") as SLCoiInfectionSuccubusCurseBase)
+
+  Infections.DefaultVampirism.Enabled = JMap.getInt(settings, "General.Infection.DefaultVampirism.Enabled") as bool
+  Infections.DefaultVampirism.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultVampirism.NonPlayerProbability")
+  Infections.DefaultVampirism.PlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultVampirism.PlayerProbability")
+
+  Infections.DefaultLycanthropy.Enabled = JMap.getInt(settings, "General.Infection.DefaultLycanthropy.Enabled") as bool
+  Infections.DefaultLycanthropy.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultLycanthropy.NonPlayerProbability")
+  Infections.DefaultLycanthropy.PlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultLycanthropy.PlayerProbability")
+
+  Infections.DefaultSuccubusCurse.Enabled = JMap.getInt(settings, "General.Infection.DefaultSuccubusCurse.Enabled") as bool
+  Infections.DefaultSuccubusCurse.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultSuccubusCurse.NonPlayerProbability")
+  Infections.DefaultSuccubusCurse.PlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultSuccubusCurse.PlayerProbability")
+
+  Infections.MT_Lycanthropy.Enabled = JMap.getInt(settings, "General.Infection.MT_Lycanthropy.Enabled") as bool
+  Infections.MT_Lycanthropy.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.MT_Lycanthropy.NonPlayerProbability")
+  Infections.MT_Lycanthropy.PlayerProbability = JMap.getFlt(settings, "General.Infection.MT_Lycanthropy.PlayerProbability")
+
+  Infections.PSQ_SuccubusCurse.Enabled = JMap.getInt(settings, "General.Infection.PSQ_SuccubusCurse.Enabled") as bool
+  Infections.PSQ_SuccubusCurse.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.PSQ_SuccubusCurse.NonPlayerProbability")
+  Infections.PSQ_SuccubusCurse.PlayerProbability = JMap.getFlt(settings, "General.Infection.PSQ_SuccubusCurse.PlayerProbability")
+  Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability = JMap.getFlt(settings, "General.Infection.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability")
+
+  DebugMessage("Settings imported")
+endFunction
+
+function SettingsExport()
+  int settings = JMap.object()
+
+  JMap.setInt(settings, "General.InfectionCause", OptInfectionCause)
+  JMap.setInt(settings, "General.NPCInfections", OptNPCInfections as int)
+  JMap.setInt(settings, "General.Debug", OptDebug as int)
+
+  JMap.setForm(settings, "General.Infections.Lycanthropy", Infections.Lycanthropy)
+  ;JMap.setForm(settings, "General.Infections.Vampirism", Infections.Vampirism)
+  JMap.setForm(settings, "General.Infections.SuccubusCurse", Infections.SuccubusCurse)
+
+  JMap.setInt(settings, "General.Infection.DefaultVampirism.Enabled", Infections.DefaultVampirism.Enabled as int)
+  JMap.setFlt(settings, "General.Infection.DefaultVampirism.NonPlayerProbability", Infections.DefaultVampirism.NonPlayerProbability)
+  JMap.setFlt(settings, "General.Infection.DefaultVampirism.PlayerProbability", Infections.DefaultVampirism.PlayerProbability)
+
+  JMap.setInt(settings, "General.Infection.DefaultLycanthropy.Enabled", Infections.DefaultLycanthropy.Enabled as int)
+  JMap.setFlt(settings, "General.Infection.DefaultLycanthropy.NonPlayerProbability", Infections.DefaultLycanthropy.NonPlayerProbability)
+  JMap.setFlt(settings, "General.Infection.DefaultLycanthropy.PlayerProbability", Infections.DefaultLycanthropy.PlayerProbability)
+
+  JMap.setInt(settings, "General.Infection.DefaultSuccubusCurse.Enabled", Infections.DefaultSuccubusCurse.Enabled as int)
+  JMap.setFlt(settings, "General.Infection.DefaultSuccubusCurse.NonPlayerProbability", Infections.DefaultSuccubusCurse.NonPlayerProbability)
+  JMap.setFlt(settings, "General.Infection.DefaultSuccubusCurse.PlayerProbability", Infections.DefaultSuccubusCurse.PlayerProbability)
+
+  JMap.setInt(settings, "General.Infection.MT_Lycanthropy.Enabled", Infections.MT_Lycanthropy.Enabled as int)
+  JMap.setFlt(settings, "General.Infection.MT_Lycanthropy.NonPlayerProbability", Infections.MT_Lycanthropy.NonPlayerProbability)
+  JMap.setFlt(settings, "General.Infection.MT_Lycanthropy.PlayerProbability", Infections.MT_Lycanthropy.PlayerProbability)
+
+  JMap.setInt(settings, "General.Infection.PSQ_SuccubusCurse.Enabled", Infections.PSQ_SuccubusCurse.Enabled as int)
+  JMap.setFlt(settings, "General.Infection.PSQ_SuccubusCurse.NonPlayerProbability", Infections.PSQ_SuccubusCurse.NonPlayerProbability)
+  JMap.setFlt(settings, "General.Infection.PSQ_SuccubusCurse.PlayerProbability", Infections.PSQ_SuccubusCurse.PlayerProbability)
+  JMap.setFlt(settings, "General.Infection.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability", Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability)
+
+  JValue.writeToFile(settings, settingsPath)
+
+  DebugMessage("Settings exported")
+endFunction
+
+; Infection Application / Curing
+bool function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor target)
+  if(Infections.Player && target == PlayerRef)
+    return false
+  endIf
+
+  if(!infection.isApplicable(infectingActor, target))
+    return false
+  endIf
+
+  if(!ProbabilityOccured(infection, target))
+    return false
+  endIf
+
+  if(!infection.Apply(infectingActor, target))
+    return false
+  endIf
+
+  if(target == PlayerRef)
+    Infections.Player = infection
+  endIf
+
+  return true
+endFunction
+
+function CureInfection(Actor anActor)
+  if(anActor == PlayerRef && Infections.Player && Infections.Player.Supported)
+    DebugMessage("Curing Player")
+    Infections.Player.Cure(PlayerRef)
+    Infections.Player = None
+
+    return
+  endIf
+  DebugMessage("Curing Actor")
+
+  if(Infections.Vampirism.IsInfected(anActor))
+    DebugMessage("Trying to cure actor of Vampirism")
+    Infections.Vampirism.Cure(anActor)
+
+  elseIf(Infections.Lycanthropy.IsInfected(anActor))
+    DebugMessage("Trying to cure actor of Lycanthropy")
+    Infections.Lycanthropy.Cure(anActor)
+
+  elseIf(Infections.SuccubusCurse.IsInfected(anActor))
+    DebugMessage("Trying to cure actor of his/her Succubus curse")
+    Infections.SuccubusCurse.Cure(anActor)
+
+  endIf
+endFunction
+
+; Validations
+bool function IsValidInfectionCause(sslThreadController thread)
+  if(!thread.HasPlayer)
+    return false
+  endIf
+
+  bool VaginalSexCause =                                                      \
+    Math.LogicalAnd(OptInfectionCause, InfectionCauseVaginal)                 \
+    && thread.IsVaginal
+
+  bool AnalSexCause =                                                         \
+    Math.LogicalAnd(OptInfectionCause, InfectionCauseAnal)                    \
+    && thread.IsAnal
+
+  bool OralSexCause =                                                         \
+    Math.LogicalAnd(OptInfectionCause, InfectionCauseOral)                    \
+    && thread.IsOral
+
+  if(VaginalSexCause || AnalSexCause || OralSexCause)
+    return true
+  endIf
+
+  return false
+endFunction
+
+bool function ProbabilityOccured(SLCoiInfection infection, Actor target)
+  float random = Utility.RandomFloat()
+  float probability = 0
+
+  if(target != PlayerRef)
+    probability = infection.NonPlayerProbability
+  else
+    probability = infection.PlayerProbability
+  endIf
+
+  DebugMessage("Probability occured for actor '" + target.GetActorBase().GetName() + "' ("+random+" <= "+probability + ")")
+
+  if(random <= probability && probability > 0)
+    return true
+  endIf
+
+  return false
+endFunction
+
+; Misc - Scene Check
+bool function DeviousCursedLootRunning()
+  int isRunning = StorageUtil.GetIntValue(Game.GetPlayer(), "DCUR_SceneRunning", -1)
+
+  if(isRunning < 1)
+    return false
+  endIf
+
+  return true
+endFunction
+
+; Main
+event OnSexLabAnimationEnd(Form an_actor, int tid)
+  sslThreadController thread = SexLab.GetController(tid)
+
+  DebugMessage("SexLab animation has ended. Trying to infect..")
+
+  ; Mod not running anymore
+  if(!isActive)
+    DebugMessage("Mod has been deactivated. Aborting.")
+    return
+  endIf
+
+  ; If player is already infected and NPC infections are turned off, abort
+  if(!OptNPCInfections && Infections.Player)
+    DebugMessage("Player is already infected and NPC infections are turned off. Aborting.")
+    return
+  endIf
+
+  ; Current animation matching the cause of an infectino?
+  if(!IsValidInfectionCause(thread))
+    DebugMessage("Animation not matching causes. Aborting.")
+    return
+  endIf
+
+  ; Infect participating actors
+  int pos = 0
+  while(pos < thread.Positions.Length)
+    Actor currentActor = thread.Positions[pos]
+
+    if(currentActor != PlayerRef)
+      SendModEventTry(tid, currentActor, PlayerRef)
+
+      if(OptNPCInfections)
+        SendModEventTry(tid, PlayerRef, currentActor)
+      endIf
+    endIf
+
+    pos += 1
+  endWhile
+endEvent
+
+event OnTryInfectActor(int threadId, Form infectingActorForm, Form targetForm)
+  Actor infectingActor = infectingActorForm as Actor
+  Actor target = targetForm as Actor
+
+  sslThreadController thread = SexLab.GetController(threadId)
+
+  bool wasInCombatWithTarget = false
+  int totalSceneWaitTime = 0
+
+  ; Scenes / Animations running?
+  totalSceneWaitTime = 0
+  while(thread.IsLocked && totalSceneWaitTime < MaxSceneWaitTime)
+
+    DebugMessage("Waiting, Animations still active (SexLab)")
+
+    Utility.Wait(SceneWaitTime)
+    totalSceneWaitTime += SceneWaitTime
+
+  endWhile
+
+  totalSceneWaitTime = 0
+  while(SLDeviousDevicesLib.isAnimating(target)                               \
+  && totalSceneWaitTime < MaxSceneWaitTime)
+
+    DebugMessage("Waiting, Animations still active (DDi)")
+
+    Utility.Wait(SceneWaitTime)
+    totalSceneWaitTime += SceneWaitTime
+
+  endWhile
+
+  while(SLDefeatConfig                                                        \
+  && SLDefeatConfig.IsDefeatActive(target)                                    \
+  && target == PlayerRef                                                      \
+  && totalSceneWaitTime < MaxSceneWaitTime)
+
+    DebugMessage("Waiting, Animations still active (Defeat)")
+
+    Utility.Wait(SceneWaitTime)
+    totalSceneWaitTime += SceneWaitTime
+
+  endWhile
+
+  while(DeviousCursedLootRunning() && target == PlayerRef)
+
+    DebugMessage("Waiting, Animations still active (Devious Cursed Loot)")
+
+    Utility.Wait(SceneWaitTime)
+    totalSceneWaitTime += SceneWaitTime
+
+  endWhile
+
+  ; In combat?
+  if(infectingActor.IsInCombat()                                              \
+  && infectingActor.GetCombatTarget() == target                               \
+  && infectingActor != PlayerRef)
+    wasInCombatWithTarget = true
+
+    infectingActor.StopCombat()
+    target.StopCombatAlarm()
+  endIf
+
+  ; Try!
+  if(!TryInfect(Infections.Vampirism, infectingActor, target))
+    if(!TryInfect(Infections.Lycanthropy, infectingActor, target))
+      TryInfect(Infections.SuccubusCurse, infectingActor, target)
+    endIf
+  endIf
+
+  ; Restart combat
+  if(wasInCombatWithTarget)
+    Utility.Wait(SceneWaitTime * 5) ; wait a little
+    infectingActor.StartCombat(target)
+  endIf
+endEvent
+
+; Utility
+function SendModEventTry(int threadId, Actor infectingActor, Actor target)
+  int handle = ModEvent.Create(ModEventTry)
+
+  if(!handle)
+    DebugMessage("Unable to create mod event")
+    return
+  endIf
+
+  ModEvent.PushInt(handle, threadId)
+  ModEvent.PushForm(handle, infectingActor)
+  ModEvent.PushForm(handle, target)
+
+  if(!ModEvent.Send(handle))
+    DebugMessage("Something went wrong with the setup of this mod.")
+  endIf
+endFunction
