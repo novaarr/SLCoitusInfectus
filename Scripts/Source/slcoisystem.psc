@@ -2,6 +2,8 @@ scriptname SLCoiSystem extends Quest hidden
 
 ; Public Consts
 string property ModEventTry = "SLCoi_TryInfectActor" autoReadOnly
+string property ModEventStartup = "SLCoi_Setup" autoReadOnly
+string property ModEventShutdown = "SLCoi_Shutdown" autoReadOnly
 
 int property SceneWaitTime = 2 autoReadOnly
 int property MaxSceneWaitTime = 20 autoReadOnly
@@ -87,11 +89,15 @@ function Setup(bool isCellLoad = false)
   RegisterForModEvent("PlayerTrack_End", "OnSexLabAnimationEnd")
   RegisterForModEvent(ModEventTry, "OnTryInfectActor")
 
+  SendModEventStartup()
+
   DebugMessage("Running")
 endFunction
 
 function Shutdown()
   DebugMessage("Shutdown (Stopping receival of external events)")
+
+  SendModEventShutdown()
 
   UnregisterForModEvent("OnSexLabAnimationEnd")
   UnregisterforModEvent("OnTryInfectActor")
@@ -413,11 +419,37 @@ event OnTryInfectActor(int threadId, Form infectingActorForm, Form targetForm)
 endEvent
 
 ; Utility
+function SendModEventStartup()
+  int handle = ModEvent.Create(ModEventStartup)
+
+  if(!handle)
+    DebugMessage("Unable to create mod event (Startup)")
+    return
+  endIf
+
+  if(!ModEvent.Send(handle))
+    DebugMessage("Something went wrong with the setup of this mod.")
+  endIf
+endFunction
+
+function SendModEventShutdown()
+  int handle = ModEvent.Create(ModEventShutdown)
+
+  if(!handle)
+    DebugMessage("Unable to create mod event (Shutdown)")
+    return
+  endIf
+
+  if(!ModEvent.Send(handle))
+    DebugMessage("Something went wrong with the setup of this mod.")
+  endIf
+endFunction
+
 function SendModEventTry(int threadId, Actor infectingActor, Actor target)
   int handle = ModEvent.Create(ModEventTry)
 
   if(!handle)
-    DebugMessage("Unable to create mod event")
+    DebugMessage("Unable to create mod event (Try)")
     return
   endIf
 
