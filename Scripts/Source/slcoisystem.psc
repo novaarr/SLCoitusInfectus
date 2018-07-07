@@ -124,6 +124,7 @@ function DebugMessage(string msg)
 endFunction
 
 ; Import / Export of settings
+; TODO: Lice
 function SettingsImport()
   int settings = JValue.readFromFile(settingsPath)
 
@@ -131,30 +132,41 @@ function SettingsImport()
   OptNPCInfections = JMap.getInt(settings, "General.NPCInfections") as bool
   OptDebug = JMap.getInt(settings, "General.Debug") as bool
 
-  Infections.SetLycanthropy(JMap.getForm(settings, "General.Infections.Lycanthropy") as SLCoiInfectionLycanthropyBase)
-  ;Infections.SetVampirism(JMap.getForm(settings, "General.Infections.Vampirism") as SLCoiInfectionVampirismBase)
-  Infections.SetSuccubusCurse(JMap.getForm(settings, "General.Infections.SuccubusCurse") as SLCoiInfectionSuccubusCurseBase)
+  Infections.SetLycanthropy(JMap.getForm(settings, "Infections.Lycanthropy") as SLCoiInfectionLycanthropyBase)
+  ;Infections.SetVampirism(JMap.getForm(settings, "Infections.Vampirism") as SLCoiInfectionVampirismBase)
+  Infections.SetSuccubusCurse(JMap.getForm(settings, "Infections.SuccubusCurse") as SLCoiInfectionSuccubusCurseBase)
 
-  Infections.DefaultVampirism.Enabled = JMap.getInt(settings, "General.Infection.DefaultVampirism.Enabled") as bool
-  Infections.DefaultVampirism.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultVampirism.NonPlayerProbability")
-  Infections.DefaultVampirism.PlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultVampirism.PlayerProbability")
+  Infections.DefaultVampirism.Enabled = JMap.getInt(settings, "Infection.DefaultVampirism.Enabled") as bool
+  Infections.DefaultVampirism.NonPlayerProbability = JMap.getFlt(settings, "Infection.DefaultVampirism.NonPlayerProbability")
+  Infections.DefaultVampirism.PlayerProbability = JMap.getFlt(settings, "Infection.DefaultVampirism.PlayerProbability")
 
-  Infections.DefaultLycanthropy.Enabled = JMap.getInt(settings, "General.Infection.DefaultLycanthropy.Enabled") as bool
-  Infections.DefaultLycanthropy.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultLycanthropy.NonPlayerProbability")
-  Infections.DefaultLycanthropy.PlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultLycanthropy.PlayerProbability")
+  Infections.DefaultLycanthropy.Enabled = JMap.getInt(settings, "Infection.DefaultLycanthropy.Enabled") as bool
+  Infections.DefaultLycanthropy.NonPlayerProbability = JMap.getFlt(settings, "Infection.DefaultLycanthropy.NonPlayerProbability")
+  Infections.DefaultLycanthropy.PlayerProbability = JMap.getFlt(settings, "Infection.DefaultLycanthropy.PlayerProbability")
 
-  Infections.DefaultSuccubusCurse.Enabled = JMap.getInt(settings, "General.Infection.DefaultSuccubusCurse.Enabled") as bool
-  Infections.DefaultSuccubusCurse.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultSuccubusCurse.NonPlayerProbability")
-  Infections.DefaultSuccubusCurse.PlayerProbability = JMap.getFlt(settings, "General.Infection.DefaultSuccubusCurse.PlayerProbability")
+  Infections.DefaultSuccubusCurse.Enabled = JMap.getInt(settings, "Infection.DefaultSuccubusCurse.Enabled") as bool
+  Infections.DefaultSuccubusCurse.NonPlayerProbability = JMap.getFlt(settings, "Infection.DefaultSuccubusCurse.NonPlayerProbability")
+  Infections.DefaultSuccubusCurse.PlayerProbability = JMap.getFlt(settings, "Infection.DefaultSuccubusCurse.PlayerProbability")
 
-  Infections.MT_Lycanthropy.Enabled = JMap.getInt(settings, "General.Infection.MT_Lycanthropy.Enabled") as bool
-  Infections.MT_Lycanthropy.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.MT_Lycanthropy.NonPlayerProbability")
-  Infections.MT_Lycanthropy.PlayerProbability = JMap.getFlt(settings, "General.Infection.MT_Lycanthropy.PlayerProbability")
+  Infections.MT_Lycanthropy.Enabled = JMap.getInt(settings, "Infection.MT_Lycanthropy.Enabled") as bool
+  Infections.MT_Lycanthropy.NonPlayerProbability = JMap.getFlt(settings, "Infection.MT_Lycanthropy.NonPlayerProbability")
+  Infections.MT_Lycanthropy.PlayerProbability = JMap.getFlt(settings, "Infection.MT_Lycanthropy.PlayerProbability")
 
-  Infections.PSQ_SuccubusCurse.Enabled = JMap.getInt(settings, "General.Infection.PSQ_SuccubusCurse.Enabled") as bool
-  Infections.PSQ_SuccubusCurse.NonPlayerProbability = JMap.getFlt(settings, "General.Infection.PSQ_SuccubusCurse.NonPlayerProbability")
-  Infections.PSQ_SuccubusCurse.PlayerProbability = JMap.getFlt(settings, "General.Infection.PSQ_SuccubusCurse.PlayerProbability")
-  Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability = JMap.getFlt(settings, "General.Infection.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability")
+  Infections.PSQ_SuccubusCurse.Enabled = JMap.getInt(settings, "Infection.PSQ_SuccubusCurse.Enabled") as bool
+  Infections.PSQ_SuccubusCurse.NonPlayerProbability = JMap.getFlt(settings, "Infection.PSQ_SuccubusCurse.NonPlayerProbability")
+  Infections.PSQ_SuccubusCurse.PlayerProbability = JMap.getFlt(settings, "Infection.PSQ_SuccubusCurse.PlayerProbability")
+  Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability = JMap.getFlt(settings, "Infection.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability")
+
+  Infections.Lice.Enabled = JMap.getInt(settings, "Infection.Lice.Enabled") as bool
+  Infections.Lice.NonPlayerProbability = JMap.getFlt(settings, "Infection.Lice.NonPlayerProbability")
+  Infections.Lice.PlayerProbability = JMap.getFlt(settings, "Infection.Lice.PlayerProbability")
+  Infections.Lice.NonPlayerFakeInfectionProbability = JMap.getFlt(settings, "Infection.Lice.NonPlayerFakeInfectionProbability")
+  Infections.Lice.SeverityIncreasePerHour = JMap.getFlt(settings, "Infection.Lice.SeverityIncreasePerHour")
+  Infections.Lice.UnnervingThreshold = JMap.getFlt(settings, "Infection.Lice.UnnervingThreshold")
+  Infections.Lice.SevereThreshold = JMap.getFlt(settings, "Infection.Lice.SevereThreshold")
+  Infections.Lice.MildRegenDebuff = JMap.getFlt(settings, "Infection.Lice.MildRegenDebuff")
+  Infections.Lice.UnnervingRegenDebuff = JMap.getFlt(settings, "Infection.Lice.UnnervingRegenDebuff")
+  Infections.Lice.SevereRegenDebuff = JMap.getFlt(settings, "Infection.Lice.SevereRegenDebuff")
 
   DebugMessage("Settings imported")
 endFunction
@@ -166,30 +178,41 @@ function SettingsExport()
   JMap.setInt(settings, "General.NPCInfections", OptNPCInfections as int)
   JMap.setInt(settings, "General.Debug", OptDebug as int)
 
-  JMap.setForm(settings, "General.Infections.Lycanthropy", Infections.Lycanthropy)
-  ;JMap.setForm(settings, "General.Infections.Vampirism", Infections.Vampirism)
-  JMap.setForm(settings, "General.Infections.SuccubusCurse", Infections.SuccubusCurse)
+  JMap.setForm(settings, "Infections.Lycanthropy", Infections.Lycanthropy)
+  ;JMap.setForm(settings, "Infections.Vampirism", Infections.Vampirism)
+  JMap.setForm(settings, "Infections.SuccubusCurse", Infections.SuccubusCurse)
 
-  JMap.setInt(settings, "General.Infection.DefaultVampirism.Enabled", Infections.DefaultVampirism.Enabled as int)
-  JMap.setFlt(settings, "General.Infection.DefaultVampirism.NonPlayerProbability", Infections.DefaultVampirism.NonPlayerProbability)
-  JMap.setFlt(settings, "General.Infection.DefaultVampirism.PlayerProbability", Infections.DefaultVampirism.PlayerProbability)
+  JMap.setInt(settings, "Infection.DefaultVampirism.Enabled", Infections.DefaultVampirism.Enabled as int)
+  JMap.setFlt(settings, "Infection.DefaultVampirism.NonPlayerProbability", Infections.DefaultVampirism.NonPlayerProbability)
+  JMap.setFlt(settings, "Infection.DefaultVampirism.PlayerProbability", Infections.DefaultVampirism.PlayerProbability)
 
-  JMap.setInt(settings, "General.Infection.DefaultLycanthropy.Enabled", Infections.DefaultLycanthropy.Enabled as int)
-  JMap.setFlt(settings, "General.Infection.DefaultLycanthropy.NonPlayerProbability", Infections.DefaultLycanthropy.NonPlayerProbability)
-  JMap.setFlt(settings, "General.Infection.DefaultLycanthropy.PlayerProbability", Infections.DefaultLycanthropy.PlayerProbability)
+  JMap.setInt(settings, "Infection.DefaultLycanthropy.Enabled", Infections.DefaultLycanthropy.Enabled as int)
+  JMap.setFlt(settings, "Infection.DefaultLycanthropy.NonPlayerProbability", Infections.DefaultLycanthropy.NonPlayerProbability)
+  JMap.setFlt(settings, "Infection.DefaultLycanthropy.PlayerProbability", Infections.DefaultLycanthropy.PlayerProbability)
 
-  JMap.setInt(settings, "General.Infection.DefaultSuccubusCurse.Enabled", Infections.DefaultSuccubusCurse.Enabled as int)
-  JMap.setFlt(settings, "General.Infection.DefaultSuccubusCurse.NonPlayerProbability", Infections.DefaultSuccubusCurse.NonPlayerProbability)
-  JMap.setFlt(settings, "General.Infection.DefaultSuccubusCurse.PlayerProbability", Infections.DefaultSuccubusCurse.PlayerProbability)
+  JMap.setInt(settings, "Infection.DefaultSuccubusCurse.Enabled", Infections.DefaultSuccubusCurse.Enabled as int)
+  JMap.setFlt(settings, "Infection.DefaultSuccubusCurse.NonPlayerProbability", Infections.DefaultSuccubusCurse.NonPlayerProbability)
+  JMap.setFlt(settings, "Infection.DefaultSuccubusCurse.PlayerProbability", Infections.DefaultSuccubusCurse.PlayerProbability)
 
-  JMap.setInt(settings, "General.Infection.MT_Lycanthropy.Enabled", Infections.MT_Lycanthropy.Enabled as int)
-  JMap.setFlt(settings, "General.Infection.MT_Lycanthropy.NonPlayerProbability", Infections.MT_Lycanthropy.NonPlayerProbability)
-  JMap.setFlt(settings, "General.Infection.MT_Lycanthropy.PlayerProbability", Infections.MT_Lycanthropy.PlayerProbability)
+  JMap.setInt(settings, "Infection.MT_Lycanthropy.Enabled", Infections.MT_Lycanthropy.Enabled as int)
+  JMap.setFlt(settings, "Infection.MT_Lycanthropy.NonPlayerProbability", Infections.MT_Lycanthropy.NonPlayerProbability)
+  JMap.setFlt(settings, "Infection.MT_Lycanthropy.PlayerProbability", Infections.MT_Lycanthropy.PlayerProbability)
 
-  JMap.setInt(settings, "General.Infection.PSQ_SuccubusCurse.Enabled", Infections.PSQ_SuccubusCurse.Enabled as int)
-  JMap.setFlt(settings, "General.Infection.PSQ_SuccubusCurse.NonPlayerProbability", Infections.PSQ_SuccubusCurse.NonPlayerProbability)
-  JMap.setFlt(settings, "General.Infection.PSQ_SuccubusCurse.PlayerProbability", Infections.PSQ_SuccubusCurse.PlayerProbability)
-  JMap.setFlt(settings, "General.Infection.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability", Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability)
+  JMap.setInt(settings, "Infection.PSQ_SuccubusCurse.Enabled", Infections.PSQ_SuccubusCurse.Enabled as int)
+  JMap.setFlt(settings, "Infection.PSQ_SuccubusCurse.NonPlayerProbability", Infections.PSQ_SuccubusCurse.NonPlayerProbability)
+  JMap.setFlt(settings, "Infection.PSQ_SuccubusCurse.PlayerProbability", Infections.PSQ_SuccubusCurse.PlayerProbability)
+  JMap.setFlt(settings, "Infection.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability", Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability)
+
+  JMap.setInt(settings, "Infection.Lice.Enabled", Infections.Lice.Enabled as int)
+  JMap.setFlt(settings, "Infection.Lice.NonPlayerProbability", Infections.Lice.NonPlayerProbability)
+  JMap.setFlt(settings, "Infection.Lice.PlayerProbability", Infections.Lice.PlayerProbability)
+  JMap.setFlt(settings, "Infection.Lice.NonPlayerFakeInfectionProbability", Infections.Lice.NonPlayerFakeInfectionProbability)
+  JMap.setFlt(settings, "Infection.Lice.SeverityIncreasePerHour", Infections.Lice.SeverityIncreasePerHour)
+  JMap.setFlt(settings, "Infection.Lice.UnnervingThreshold", Infections.Lice.UnnervingThreshold)
+  JMap.setFlt(settings, "Infection.Lice.SevereThreshold", Infections.Lice.SevereThreshold)
+  JMap.setFlt(settings, "Infection.Lice.MildRegenDebuff", Infections.Lice.MildRegenDebuff)
+  JMap.setFlt(settings, "Infection.Lice.UnnervingRegenDebuff", Infections.Lice.UnnervingRegenDebuff)
+  JMap.setFlt(settings, "Infection.Lice.SevereRegenDebuff", Infections.Lice.SevereRegenDebuff)
 
   JValue.writeToFile(settings, settingsPath)
 

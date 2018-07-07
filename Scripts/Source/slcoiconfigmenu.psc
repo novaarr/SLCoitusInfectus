@@ -1,5 +1,7 @@
 scriptname SLCoiConfigMenu extends SKI_ConfigBase hidden
 
+; TODO: add collapsable menus
+
 SLCoiSystem property System auto
 
 ; CONSTS
@@ -35,6 +37,17 @@ int oidSettingsInfectionSuccubusCurseProbabilityPC = -1
 int oidSettingsInfectionSuccubusCurseProbabilityNPC = -1
 
 int oidSettingsPSQNPCInfectionProbability = -1
+
+int oidSettingsInfectionTypeLiceEnabled = -1
+int oidSettingsInfectionLiceProbabilityPC = -1
+int oidSettingsInfectionLiceProbabilityNPC = -1
+int oidSettingsInfectionLiceSeverityIncrease = -1
+int oidSettingsInfectionLiceUnnervingThreshold = -1
+int oidSettingsInfectionLiceSevereThreshold = -1
+int oidSettingsInfectionLiceMildDebuff = -1
+int oidSettingsInfectionLiceUnnervingDebuff = -1
+int oidSettingsInfectionLiceSevereDebuff = -1
+int oidSettingsInfectionLiceFakeNPCProbability = -1
 
 int oidMiscDebug = -1
 
@@ -86,11 +99,20 @@ event OnOptionHighlight(int option)
   if(option == oidSettingsInfectionTypeSuccubusCurseEnabled)
     SetInfoText("$SettingsInfectionTypeSuccubusCurseHint")
 
-  elseIf(option == oidSettingsPSQNPCInfectionProbability)
-    SetInfoText("$SettingsPSQNPCInfectionProbabilityHint")
+  elseIf(option == oidSettingsPSQNPCInfectionProbability                      \
+  ||    option == oidSettingsInfectionLiceFakeNPCProbability)
+    SetInfoText("$SettingsFakeNPCInfectionProbabilityHint")
 
   elseIf(option == oidSettingsNPCInfections)
     SetInfoText("$SettingsNPCInfectionsHint")
+
+  elseIf(option == oidSettingsInfectionLiceMildDebuff                         \
+  ||    option == oidSettingsInfectionLiceUnnervingDebuff                     \
+  ||    option == oidSettingsInfectionLiceSevereDebuff)
+    SetInfoText("$SettingsSTDLiceDebuffHint")
+
+  elseIf(option == oidSettingsInfectionLiceSeverityIncrease)
+    SetInfoText("$SettingsSTDLiceSeverityIncreasePerHourHint")
 
   endIf
 endEvent
@@ -111,6 +133,9 @@ event OnOptionSelect(int option)
 
   elseIf(option == oidSettingsInfectionTypeSuccubusCurseEnabled)
     System.Infections.SuccubusCurse.Enabled = !System.Infections.SuccubusCurse.Enabled
+
+  elseIf(option == oidSettingsInfectionTypeLiceEnabled)
+    System.Infections.Lice.Enabled = !System.Infections.Lice.Enabled
 
   ; Infeciton Causes
   elseIf(option == oidSettingsInfectionCauseVaginal)
@@ -140,9 +165,11 @@ event OnOptionSelect(int option)
   ; Import / Export
   elseIf(option == oidMiscImport)
     System.SettingsImport()
+    ShowMessage("$MessageDone")
 
   elseIf(option == oidMiscExport)
     System.SettingsExport()
+    ShowMessage("$MessageDone")
 
   else
     return
@@ -153,6 +180,7 @@ event OnOptionSelect(int option)
 endEvent
 
 event OnOptionSliderOpen(int option)
+  ; PSQ
   if(option == oidSettingsPSQNPCInfectionProbability)
     ; simply use the same values as above, no need for further consts
     SetSliderDialogStartValue(System.Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability)
@@ -160,6 +188,7 @@ event OnOptionSliderOpen(int option)
     SetSliderDialogInterval(0.01)
     SetSliderDialogRange(0.0, 1.0)
 
+  ; Lycanthropy
   elseIf(option == oidSettingsInfectionLycanthropyProbabilityPC)
     SetSliderDialogStartValue(System.Infections.Lycanthropy.PlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.Lycanthropy.PlayerProbabilityDefault)
@@ -172,6 +201,7 @@ event OnOptionSliderOpen(int option)
     SetSliderDialogInterval(0.01)
     SetSliderDialogRange(0.0, 1.0)
 
+  ; Vampirism
   elseIf(option == oidSettingsInfectionVampirismProbabilityPC)
     SetSliderDialogStartValue(System.Infections.Vampirism.PlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.Vampirism.PlayerProbabilityDefault)
@@ -184,6 +214,7 @@ event OnOptionSliderOpen(int option)
     SetSliderDialogInterval(0.01)
     SetSliderDialogRange(0.0, 1.0)
 
+  ; Succubus Curse
   elseIf(option == oidSettingsInfectionSuccubusCurseProbabilityPC)
     SetSliderDialogStartValue(System.Infections.SuccubusCurse.PlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.SuccubusCurse.PlayerProbabilityDefault)
@@ -193,6 +224,61 @@ event OnOptionSliderOpen(int option)
   elseIf(option == oidSettingsInfectionSuccubusCurseProbabilityNPC)
     SetSliderDialogStartValue(System.Infections.SuccubusCurse.NonPlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.SuccubusCurse.NonPlayerProbabilityDefault)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.0, 1.0)
+
+  ; Lice
+  elseIf(option == oidSettingsInfectionLiceProbabilityPC)
+    SetSliderDialogStartValue(System.Infections.Lice.PlayerProbability)
+    SetSliderDialogDefaultValue(System.Infections.Lice.PlayerProbabilityDefault)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.0, 1.0)
+
+  elseIf(option == oidSettingsInfectionLiceProbabilityNPC)
+    SetSliderDialogStartValue(System.Infections.Lice.NonPlayerProbability)
+    SetSliderDialogDefaultValue(System.Infections.Lice.NonPlayerProbabilityDefault)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.0, 1.0)
+
+  elseIf(option == oidSettingsInfectionLiceSeverityIncrease)
+    SetSliderDialogStartValue(System.Infections.Lice.SeverityIncreasePerHour)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityIncreasePerHour)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.0, 1.0)
+
+  elseIf(option == oidSettingsInfectionLiceUnnervingThreshold)
+    SetSliderDialogStartValue(System.Infections.Lice.UnnervingThreshold)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultUnnervingThreshold)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.1, 1.0)
+
+  elseIf(option == oidSettingsInfectionLiceSevereThreshold)
+    SetSliderDialogStartValue(System.Infections.Lice.SevereThreshold)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSevereThreshold)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.2, 1.0)
+
+  elseIf(option == oidSettingsInfectionLiceMildDebuff)
+    SetSliderDialogStartValue(System.Infections.Lice.MildRegenDebuff)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultMildRegenDebuff)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.0, 1.0)
+
+  elseIf(option == oidSettingsInfectionLiceUnnervingDebuff)
+    SetSliderDialogStartValue(System.Infections.Lice.UnnervingRegenDebuff)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultUnnervingRegenDebuff)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.0, 1.0)
+
+  elseIf(option == oidSettingsInfectionLiceSevereDebuff)
+    SetSliderDialogStartValue(System.Infections.Lice.SevereRegenDebuff)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSevereRegenDebuff)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.0, 1.0)
+
+  elseIf(option == oidSettingsInfectionLiceFakeNPCProbability)
+    SetSliderDialogStartValue(System.Infections.Lice.NonPlayerFakeInfectionProbability)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultNonPlayerFakeInfectionProbability)
     SetSliderDialogInterval(0.01)
     SetSliderDialogRange(0.0, 1.0)
 
@@ -220,6 +306,33 @@ event OnOptionSliderAccept(int option, float value)
 
   elseIf(option == oidSettingsInfectionSuccubusCurseProbabilityNPC)
     System.Infections.SuccubusCurse.NonPlayerProbability = value
+
+  elseIf(option == oidSettingsInfectionLiceProbabilityPC)
+    System.Infections.Lice.PlayerProbability = value
+
+  elseIf(option == oidSettingsInfectionLiceProbabilityNPC)
+    System.Infections.Lice.NonPlayerProbability = value
+
+  elseIf(option == oidSettingsInfectionLiceSeverityIncrease)
+    System.Infections.Lice.SeverityIncreasePerHour = value
+
+  elseIf(option == oidSettingsInfectionLiceUnnervingThreshold)
+    System.Infections.Lice.UnnervingThreshold = value
+
+  elseIf(option == oidSettingsInfectionLiceSevereThreshold)
+    System.Infections.Lice.SevereThreshold = value
+
+  elseIf(option == oidSettingsInfectionLiceMildDebuff)
+    System.Infections.Lice.MildRegenDebuff = value
+
+  elseIf(option == oidSettingsInfectionLiceUnnervingDebuff)
+    System.Infections.Lice.UnnervingRegenDebuff = value
+
+  elseIf(option == oidSettingsInfectionLiceSevereDebuff)
+    System.Infections.Lice.SevereRegenDebuff = value
+
+  elseIf(option == oidSettingsInfectionLiceFakeNPCProbability)
+    System.Infections.Lice.NonPlayerFakeInfectionProbability = value
 
   endIf
 
@@ -398,6 +511,76 @@ function SetupPageSettings()
       System.Infections.SuccubusCurse.NonPlayerProbability,                   \
       "$SettingsInfectionProbabilityFormat")
 
+  ; Infection: Lice (STD)
+  AddEmptyOption()
+  AddHeaderOption("$SLCoiSTDLice")
+
+  oidSettingsInfectionTypeLiceEnabled =                                       \
+    AddTextOption(                                                            \
+      "$SettingsInfectionEnabled",                                            \
+      System.Infections.Lice.Enabled)
+
+  oidSettingsInfectionLiceProbabilityPC =                                     \
+    AddSliderOption(                                                          \
+      "$SettingsInfectionProbabilityPC",                                      \
+      System.Infections.Lice.PlayerProbability,                               \
+      "$SettingsInfectionProbabilityFormat")
+
+  oidSettingsInfectionLiceProbabilityNPC =                                    \
+    AddSliderOption(                                                          \
+      "$SettingsInfectionProbabilityNPC",                                     \
+      System.Infections.Lice.NonPlayerProbability,                            \
+      "$SettingsInfectionProbabilityFormat")
+
+  oidSettingsInfectionLiceSeverityIncrease =                                  \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceSeverityIncreasePerHour",                              \
+      System.Infections.Lice.SeverityIncreasePerHour,                         \
+      "$SettingsSTDLiceSeverityIncreasePerHourFormat"                         \
+    )
+
+  oidSettingsInfectionLiceUnnervingThreshold =                                \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceUnnervingThreshold",                                   \
+      System.Infections.Lice.UnnervingThreshold,                              \
+      "$SettingsSTDLiceThresholdFormat"                                       \
+    )
+
+  oidSettingsInfectionLiceSevereThreshold =                                   \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceSevereThreshold",                                      \
+      System.Infections.Lice.SevereThreshold,                                 \
+      "$SettingsSTDLiceThresholdFormat"                                       \
+    )
+
+  oidSettingsInfectionLiceMildDebuff =                                        \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceMildRegenDebuff",                                      \
+      System.Infections.Lice.MildRegenDebuff,                                 \
+      "$SettingsSTDLiceRegenDebuffFormat"                                     \
+    )
+
+  oidSettingsInfectionLiceUnnervingDebuff =                                   \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceUnnervingRegenDebuff",                                 \
+      System.Infections.Lice.UnnervingRegenDebuff,                            \
+      "$SettingsSTDLiceRegenDebuffFormat"                                     \
+    )
+
+  oidSettingsInfectionLiceSevereDebuff =                                      \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceSevereRegenDebuff",                                    \
+      System.Infections.Lice.SevereRegenDebuff,                               \
+      "$SettingsSTDLiceRegenDebuffFormat"                                     \
+    )
+
+  oidSettingsInfectionLiceFakeNPCProbability =                                \
+    AddSliderOption(                                                          \
+      "$SettingsFakeNPCInfectionProbability",                                 \
+      System.Infections.Lice.NonPlayerFakeInfectionProbability,               \
+      "$SettingsFakeNPCInfectionProbabilityFormat"                            \
+    )
+
   AddEmptyOption()
   AddHeaderOption("$SettingsInfectionCauses")
 
@@ -422,9 +605,9 @@ function SetupPageSettings()
     AddHeaderOption("$SettingsPSQ")
 
     oidSettingsPSQNPCInfectionProbability = AddSliderOption(                  \
-      "$SettingsPSQNPCInfectionProbability",                                  \
-      System.Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability,                                            \
-      "$SettingsPSQNPCInfectionProbabilityFormat")
+      "$SettingsFakeNPCInfectionProbability",                                 \
+      System.Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability,  \
+      "$SettingsFakeNPCInfectionProbabilityFormat")
 
     AddEmptyOption()
   endIf

@@ -1,15 +1,26 @@
 scriptname SLCoiInfectionLice extends SLCoiInfectionCommon hidden
 
-float property SeverityIncreatePerHour auto
+; TODO: Implement: Cure (Ingame), Lessen Severity (Ingame)
+
+float property SeverityIncreasePerHour auto
+float property DefaultSeverityIncreasePerHour auto
 
 float property UnnervingThreshold auto
+float property DefaultUnnervingThreshold auto
+
 float property SevereThreshold auto
+float property DefaultSevereThreshold auto
 
 ; TODO: Whenever the debuff rates are about to get changed:
 ;       Reset EVERY actor value modified who's infected
 float property MildRegenDebuff auto
+float property DefaultMildRegenDebuff auto
+
 float property UnnervingRegenDebuff auto
+float property DefaultUnnervingRegenDebuff auto
+
 float property SevereRegenDebuff auto
+float property DefaultSevereRegenDebuff auto
 
 string[] property AnimationsMild auto
 string[] property AnimationsUnnerving auto
@@ -26,7 +37,7 @@ float function UpdateSeverity(float severity, float lastUpdate)
   System.DebugMessage("Last Update: " + lastUpdate)
   System.DebugMessage("Current Time: " + currentTime)
   System.DebugMessage("Delta: " + deltaTime)
-  System.DebugMessage("Hourly Increase: " + SeverityIncreatePerHour)
+  System.DebugMessage("Hourly Increase: " + SeverityIncreasePerHour)
 
   if(deltaTime >= 0.0 && deltaTime < 1.0)
     return severity
@@ -36,7 +47,7 @@ float function UpdateSeverity(float severity, float lastUpdate)
     return 1.0
   endIf
 
-  severity += SeverityIncreatePerHour * (deltaTime as int)
+  severity += SeverityIncreasePerHour * (deltaTime as int)
 
   if(severity > 1.0)
     severity = 1.0
