@@ -52,7 +52,7 @@ bool function IsInfected(Actor anActor)
   elseIf(anActor != System.PlayerRef)
     float random = Utility.RandomFloat()
 
-    if(random <= NonPlayerFakeInfectionProbability                          \
+    if(random >= NonPlayerFakeInfectionProbability                            \
     && NonPlayerFakeInfectionProbability > 0)
       System.DebugMessage("NPC is treated as Succubus")
 
