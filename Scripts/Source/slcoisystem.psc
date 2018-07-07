@@ -124,7 +124,6 @@ function DebugMessage(string msg)
 endFunction
 
 ; Import / Export of settings
-; TODO: Lice
 function SettingsImport()
   int settings = JValue.readFromFile(settingsPath)
 
