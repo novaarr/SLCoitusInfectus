@@ -1,0 +1,45 @@
+$ModIsNotActivated	Um fortzufahren muss die Mod aktiviert werden
+
+$PageStatus	Status
+
+$StatusMod	Mod ist aktiv
+$STATUSACTIVE	Ja
+$STATUSINACTIVE	Nein
+
+
+$PageSettings	Einstellungen
+
+$SettingsNPCInfections	NPC Infektionen
+$SettingsNPCInfectionsHint	Erlaube NPCs durch den Spieler infiziert zu werden.\nHinweis: Das führt dazu, dass jede sexuelle Begegnung mit dem Spieler verfolgt wird.
+
+$SettingsInfectionTypes	Infizierungsarten
+$SettingsInfectionTypeLycanthropy	Lykanthropie
+$SettingsInfectionTypeVampirism	Vampirismus
+$SettingsInfectionTypeSuccubusCurse	Succubus Fluch
+$SettingsInfectionTypeSuccubusCurseHint	Funktioniert nur, wenn eine unterstützte Mod aktiv ist (derzeit nur PSQ)
+
+$SettingsInfectionProbability	Infektionswahrscheinlichkeit
+$SettingsInfectionProbabilityFormat	{3}
+
+$SettingsInfectionCauses	Infektionsgründe
+$SettingsInfectionCauseVaginal	vaginaler Sex
+$SettingsInfectionCauseAnal	Analsex
+$SettingsInfectionCauseOral	Oralsex
+
+$SettingsPSQ	PSQ Einstellungen
+$SettingsPSQNPCInfectionProbability	NPC Wahrscheinlichkeit
+$SettingsPSQNPCInfectionProbabilityFormat	{3}
+$SettingsPSQNPCInfectionProbabilityHint	Wahrscheinlichkeit das der NPC als Succubus behandelt wird, auch wenn er/sie keine/-r ist
+
+
+$PageMisc	Sonstiges
+
+$MiscCureMe	Heil mich!
+$MiscCureDone	Du wirst von deinen Erkrankungen geheilt, sobald Du wieder im Spiel bist
+
+$MiscDebug	Papyrus Debug Logging
+
+$MiscSupport	Unterstützte Mods
+$MISCSUPPORTMT	Moonlight Tales
+$MISCSUPPORTPSQ	Player Succubus Quest
+
