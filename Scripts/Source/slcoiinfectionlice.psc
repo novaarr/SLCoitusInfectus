@@ -106,3 +106,18 @@ float function ResetRegenRates(Actor target, float rate)
 
   return -rate
 endFunction
+
+bool function IsInfected(Actor target)
+  float random = Utility.RandomFloat()
+
+  if(target != System.PlayerRef                                               \
+  && random >= NonPlayerFakeInfectionProbability                              \
+  && NonPlayerFakeInfectionProbability > 0)
+    System.DebugMessage("Actor '" + target.GetActorBase().GetName() + "' is treated as infected (Fake NPC infection probability)")
+
+    return true
+  endIf
+
+
+  return System.PlayerRef.HasMagicEffect(MEDebuffRef)
+endFunction
