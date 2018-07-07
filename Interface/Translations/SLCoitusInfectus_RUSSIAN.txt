@@ -1,0 +1,49 @@
+$ModIsNotActivated	Мод должен быть активирован
+$PageStatus	Статус
+$StatusMod	Активировать мод
+$STATUSACTIVE	Да
+$STATUSINACTIVE	Нет
+$PageSettings	Настройки
+$SettingsNPCInfections	Инфекции НПС
+$SettingsNPCInfectionsHint	Игрок может заражать НПС
+$SettingsInfectionTypeLycanthropy	Настройки Ликантропии
+$SettingsInfectionTypeVampirism	Настройки Вампиризма
+$SettingsInfectionTypeSuccubusCurse	Настройки Проклятия суккуба
+$SettingsInfectionTypeSuccubusCurseHint	Работает только в том случае, если установлен поддерживаемый мод (в настоящее время только PSQ)
+$SettingsInfectionEnabled	Включено
+$SettingsInfectionSelection	Классификация
+$SettingsInfectionProbabilityPC	Вероятность заражения Игрока
+$SettingsInfectionProbabilityNPC	Вероятность заражания НПС
+$SettingsInfectionProbabilityFormat	{3}
+$SettingsInfectionCauses	Причины инфекции
+$SettingsInfectionCauseVaginal	Вагинальный секс
+$SettingsInfectionCauseAnal	Анальный секс
+$SettingsInfectionCauseOral	Оральный секс
+$SettingsPSQ	Настройки PSQ
+$SettingsFakeNPCInfectionProbability	НПС Вероятность
+$SettingsFakeNPCInfectionProbabilityFormat	{3}
+$SettingsFakeNPCInfectionProbabilityHint	Вероятность того, что НПС будут заражены
+$SettingsSTDLiceUnnervingThreshold	Порог бессилия
+$SettingsSTDLiceSevereThreshold	Порог сложности
+$SettingsSTDLiceThresholdFormat	{1}
+$SettingsSTDLiceMildRegenDebuff	Мягкие дебаффы
+$SettingsSTDLiceUnnervingRegenDebuff	Дебафф бессилия
+$SettingsSTDLiceSevereRegenDebuff	Сильные дебаффы
+$SettingsSTDLiceDebuffHint	Если вы были инфицированы вшами, ваши скорость восстановления магии и выносливости уменьшаются на заданное значение.
+$SettingsSTDLiceRegenDebuffFormat	{3}
+$SettingsSTDLiceSeverityIncreasePerHour	Сложность в час
+$SettingsSTDLiceSeverityIncreasePerHourHint	Болезнь осложняется каждый час (игровое время)
+$SettingsSTDLiceSeverityIncreasePerHourFormat	{2}
+$PageMisc	Разное
+$MiscCureMe	Вылечиться!
+$MiscCureMessage	Вы будете излечены от инфекций, как только вернетесь в игру
+$MiscDebug	Лог отладки Papyrus
+$MiscSupport	Поддерживаемые моды
+$MISCSUPPORTMT	Moonlight Tales
+$MISCSUPPORTPSQ	Player Succubus Quest
+$MiscSettings	Настройки
+$MiscSettingsImport	Импорт
+$MiscSettingsExport	Экспорт
+$MessageDone	Готово
+$SLCoiSTDLice	Сопротивление (STD)
+$SLCoiSTDLiceDebuff	Сильный Зуд
