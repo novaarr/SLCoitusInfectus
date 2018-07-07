@@ -305,7 +305,7 @@ bool function ProbabilityOccured(SLCoiInfection infection, Actor target)
 
   DebugMessage("Probability occured for actor '" + target.GetActorBase().GetName() + "' ("+random+" <= "+probability + ")")
 
-  if(random >= probability && probability > 0)
+  if(random <= probability && probability > 0)
     return true
   endIf
 
