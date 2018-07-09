@@ -1,1 +1,0 @@
-scriptname SLCoiInfectionSuccubusCurseBase extends SLCoiInfection hidden
