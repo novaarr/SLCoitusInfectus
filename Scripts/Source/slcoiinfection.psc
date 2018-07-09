@@ -105,3 +105,18 @@ endFunction
 bool function canInfect(Actor target)
   return !IsInfected(target)
 endFunction
+
+bool function hasProbabilityOccurred(bool forNPC = false)
+  float random = Utility.RandomFloat()
+  float probability = PlayerProbability
+
+  if(forNPC)
+    probability = NonPlayerProbability
+  endIf
+
+  if(random <= probability && probability > 0)
+    return true
+  endIf
+
+  return false
+endFunction

@@ -107,17 +107,33 @@ float function ResetRegenRates(Actor target, float rate)
   return -rate
 endFunction
 
-bool function IsInfected(Actor target)
+bool function IsInfected(Actor target) ; TODO: need to make that fake infection check somewhere else
   float random = Utility.RandomFloat()
 
-  if(target != System.PlayerRef                                               \
-  && random <= NonPlayerFakeInfectionProbability                              \
+  if(System.PlayerRef.HasMagicEffect(MEDebuffRef))
+    return true
+  endIf
+
+  if(target == System.PlayerRef)
+    return false
+  endIf
+
+  System.Actors.Register(target)
+
+  if(System.Actors.wasFakeInfectedSet(target, self))
+    System.DebugMessage("NPC already checked for fake infection")
+    return System.Actors.IsFakeInfected(target, self)
+  endIf
+
+  if(random <= NonPlayerFakeInfectionProbability                              \
   && NonPlayerFakeInfectionProbability > 0)
     System.DebugMessage("Actor '" + target.GetActorBase().GetName() + "' is treated as infected (Fake NPC infection probability)")
+
+    System.Actors.SetFakeInfected(target, self)
 
     return true
   endIf
 
-
-  return System.PlayerRef.HasMagicEffect(MEDebuffRef)
+  System.Actors.SetFakeInfected(target, self, false)
+  return false
 endFunction

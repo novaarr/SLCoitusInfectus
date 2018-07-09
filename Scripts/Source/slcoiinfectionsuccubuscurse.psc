@@ -8,7 +8,7 @@ bool property PSQSupport auto
 PlayerSuccubusQuestScript PSQScript
 
 string function GetName()
-  return "Succubus Curse"
+  return "SuccubusCurse"
 endFunction
 
 function Load()
@@ -62,24 +62,11 @@ bool function IsInfected(Actor anActor)
     return false
   endIf
 
-  if(anActor == System.PlayerRef                                              \
-  && PSQScript.PlayerIsSuccubus.GetValue() == 1)
-    return true
-
-  elseIf(anActor != System.PlayerRef)
-    float random = Utility.RandomFloat()
-
-    if(random <= NonPlayerFakeInfectionProbability                            \
-    && NonPlayerFakeInfectionProbability > 0)
-      System.DebugMessage("NPC is treated as Succubus")
-
-      return true
-    endIf
+  if(anActor != System.PlayerRef)
+    return hasFakeProbabilityOccurred(anActor)
   endIf
 
-  System.DebugMessage("Player has been cured of his/her Succubus curse")
-
-  return false
+  return (PSQScript.PlayerIsSuccubus.GetValue() == 1)
 endFunction
 
 bool function CanInfect(Actor target)
@@ -96,4 +83,27 @@ bool function CanInfect(Actor target)
   endIf
 
   return parent.CanInfect(target)
+endFunction
+
+bool function hasFakeProbabilityOccurred(Actor infectingActor)
+  System.Actors.Register(infectingActor)
+
+  if(System.Actors.wasFakeInfectedSet(infectingActor, self))
+    System.DebugMessage("NPC already checked for fake infection")
+    return System.Actors.IsFakeInfected(infectingActor, self)
+  endIf
+
+  float random = Utility.RandomFloat()
+
+  if(random <= NonPlayerFakeInfectionProbability                              \
+  && NonPlayerFakeInfectionProbability > 0)
+    System.Actors.SetFakeInfected(infectingActor, self)
+
+    System.DebugMessage("NPC is treated as Succubus")
+
+    return true
+  endIf
+
+  System.Actors.SetFakeInfected(infectingActor, self, false)
+  return false
 endFunction

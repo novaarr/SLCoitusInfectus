@@ -43,9 +43,15 @@ int property OptInfectionCause auto
 ; Internal
 Actor property PlayerRef auto
 SexLabFramework property SexLab auto
+
 SLCoiInfectionRegistry property Infections auto
+SLCoiActorRegistry property Actors auto
 
 string settingsPath = "./data/slcoitusinfectus/config.json"
+
+; Dependencies
+; - PapyrusUtil
+; - JSONUtil (remove that one and use PapyrusUtils' json interface instead)
 
 ; Support for mods starting scenes
 DefeatConfig SLDefeatConfig = None
@@ -204,8 +210,10 @@ bool function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor ta
     return false
   endIf
 
-  if(!ProbabilityOccured(infection, target))
+  if(!infection.hasProbabilityOccurred(target != PlayerRef))
     return false
+  else
+    DebugMessage("Probability occurred for actor '" + target.GetActorBase().GetName())
   endIf
 
   if(!infection.Apply(infectingActor, target))
@@ -267,25 +275,6 @@ bool function IsValidInfectionCause(sslThreadController thread)
     && thread.IsOral
 
   if(VaginalSexCause || AnalSexCause || OralSexCause)
-    return true
-  endIf
-
-  return false
-endFunction
-
-bool function ProbabilityOccured(SLCoiInfection infection, Actor target)
-  float random = Utility.RandomFloat()
-  float probability = 0
-
-  if(target != PlayerRef)
-    probability = infection.NonPlayerProbability
-  else
-    probability = infection.PlayerProbability
-  endIf
-
-  DebugMessage("Probability occured for actor '" + target.GetActorBase().GetName() + "' ("+random+" <= "+probability + ")")
-
-  if(random <= probability && probability > 0)
     return true
   endIf
 
