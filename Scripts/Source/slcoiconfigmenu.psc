@@ -1,6 +1,6 @@
 scriptname SLCoiConfigMenu extends SKI_ConfigBase hidden
 
-; TODO: add collapsable menus
+; TODO: add collapsable menus, requirement checks (JSONUtil)
 
 SLCoiSystem property System auto
 
@@ -183,8 +183,8 @@ event OnOptionSliderOpen(int option)
   ; PSQ
   if(option == oidSettingsPSQNPCInfectionProbability)
     ; simply use the same values as above, no need for further consts
-    SetSliderDialogStartValue(System.Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability)
-    SetSliderDialogDefaultValue(System.Infections.PSQ_SuccubusCurse.DefaultNonPlayerFakeInfectionProbability)
+    SetSliderDialogStartValue(System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability)
+    SetSliderDialogDefaultValue(System.Infections.SuccubusCurse.DefaultNonPlayerFakeInfectionProbability)
     SetSliderDialogInterval(0.01)
     SetSliderDialogRange(0.0, 1.0)
 
@@ -287,7 +287,7 @@ endEvent
 
 event OnOptionSliderAccept(int option, float value)
   if(option == oidSettingsPSQNPCInfectionProbability)
-    System.Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability = value
+    System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability = value
 
   elseIf(option == oidSettingsInfectionLycanthropyProbabilityPC)
     System.Infections.Lycanthropy.PlayerProbability = value
@@ -333,72 +333,6 @@ event OnOptionSliderAccept(int option, float value)
 
   elseIf(option == oidSettingsInfectionLiceFakeNPCProbability)
     System.Infections.Lice.NonPlayerFakeInfectionProbability = value
-
-  endIf
-
-  ForcePageReset()
-endEvent
-
-event OnOptionMenuOpen(int option)
-  if(option == oidSettingsInfectionTypeLycanthropySelection)
-    string[] itemsLycanthropy = new string[2]
-    int startIndexLycanthropy = 0
-
-    itemsLycanthropy[0] = System.Infections.DefaultLycanthropy.GetName()
-    itemsLycanthropy[1] = System.Infections.MT_Lycanthropy.GetName()
-
-    if(itemsLycanthropy[1] == System.Infections.Lycanthropy.GetName())
-      startIndexLycanthropy = 1
-    endIf
-
-    SetMenuDialogDefaultIndex(0)
-    SetMenuDialogStartIndex(startIndexLycanthropy)
-    SetMenuDialogOptions(itemsLycanthropy)
-
-  elseIf(option == oidSettingsInfectionTypeVampirismSelection)
-    string[] itemsVampirism = new string[1]
-    int startIndex = 0
-
-    itemsVampirism[0] = System.Infections.DefaultVampirism.GetName()
-
-    SetMenuDialogDefaultIndex(0)
-    SetMenuDialogStartIndex(0)
-    SetMenuDialogOptions(itemsVampirism)
-
-  elseIf(option == oidSettingsInfectionTypeSuccubusCurseSelection)
-    string[] itemsSuccubusCurse = new string[2]
-    int startIndexSuccubusCurse = 0
-
-    itemsSuccubusCurse[0] = System.Infections.DefaultSuccubusCurse.GetName()
-    itemsSuccubusCurse[1] = System.Infections.PSQ_SuccubusCurse.GetName()
-
-    if(itemsSuccubusCurse[1] == System.Infections.SuccubusCurse.GetName())
-      startIndexSuccubusCurse = 1
-    endIf
-
-    SetMenuDialogDefaultIndex(0)
-    SetMenuDialogStartIndex(startIndexSuccubusCurse)
-    SetMenuDialogOptions(itemsSuccubusCurse)
-  endIf
-endEvent
-
-event OnOptionMenuAccept(int option, int index)
-  if(option == oidSettingsInfectionTypeLycanthropySelection)
-    if(index == 0)
-      System.Infections.SetLycanthropy(System.Infections.DefaultLycanthropy)
-    elseIf(index == 1)
-      System.Infections.SetLycanthropy(System.Infections.MT_Lycanthropy)
-    endIf
-
-  elseIf(option == oidSettingsInfectionTypeVampirismSelection)
-    ; Nothing To Do
-
-  elseIf(option == oidSettingsInfectionTypeSuccubusCurseSelection)
-    if(index == 0)
-      System.Infections.SetSuccubusCurse(System.Infections.DefaultSuccubusCurse)
-    elseIf(index == 1)
-      System.Infections.SetSuccubusCurse(System.Infections.PSQ_SuccubusCurse)
-    endIf
 
   endIf
 
@@ -489,10 +423,17 @@ function SetupPageSettings()
   AddEmptyOption()
   AddHeaderOption("$SettingsInfectionTypeSuccubusCurse")
 
+  int SuccubusCurseEnableSwitchFlags = OPTION_FLAG_NONE ; TODO: add hint
+
+  if(!System.Infections.SuccubusCurse.Supported)
+    SuccubusCurseEnableSwitchFlags = OPTION_FLAG_DISABLED
+  endIf
+
   oidSettingsInfectionTypeSuccubusCurseEnabled =                              \
     AddTextOption(                                                            \
       "$SettingsInfectionEnabled",                                            \
-      System.Infections.SuccubusCurse.Enabled)
+      System.Infections.SuccubusCurse.Enabled,                                \
+      SuccubusCurseEnableSwitchFlags)
 
   oidSettingsInfectionTypeSuccubusCurseSelection =                            \
     AddMenuOption(                                                            \
@@ -601,12 +542,12 @@ function SetupPageSettings()
 
   SetCursorPosition(TOP_RIGHT)
 
-  if(System.Infections.PSQ_SuccubusCurse.Supported)
+  if(System.Infections.SuccubusCurse.PSQSupport)
     AddHeaderOption("$SettingsPSQ")
 
     oidSettingsPSQNPCInfectionProbability = AddSliderOption(                  \
       "$SettingsFakeNPCInfectionProbability",                                 \
-      System.Infections.PSQ_SuccubusCurse.NonPlayerFakeInfectionProbability,  \
+      System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability,  \
       "$SettingsFakeNPCInfectionProbabilityFormat")
 
     AddEmptyOption()
@@ -629,14 +570,14 @@ function SetupPageMisc()
   AddHeaderOption("$MiscSupport")
 
   AddTextOption(                                                              \
-    SexLabUtil.StringIfElse(System.Infections.MT_Lycanthropy.Supported,       \
+    SexLabUtil.StringIfElse(System.Infections.Lycanthropy.MTSupport,          \
       ColoredText("$MISCSUPPORTMT", COLOR_GREEN),                             \
       ColoredText("$MISCSUPPORTMT", COLOR_RED)                                \
     ),                                                                        \
     "")
 
   AddTextOption(                                                              \
-    SexLabUtil.StringIfElse(System.Infections.PSQ_SuccubusCurse.Supported,    \
+    SexLabUtil.StringIfElse(System.Infections.SuccubusCurse.PSQSupport,       \
       ColoredText("$MISCSUPPORTPSQ", COLOR_GREEN),                            \
       ColoredText("$MISCSUPPORTPSQ", COLOR_RED)                               \
     ),                                                                        \

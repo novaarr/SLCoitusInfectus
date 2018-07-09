@@ -1,4 +1,4 @@
-scriptname SLCoiInfectionVampirism extends SLCoiInfectionVampirismBase hidden
+scriptname SLCoiInfectionVampirism extends SLCoiInfection hidden
 
 Faction property FactionVampireRef auto
 
@@ -8,7 +8,7 @@ MagicEffect property MEVampireDiseaseRef auto
 PlayerVampireQuestScript property QuestVampire auto
 
 string function GetName()
-  return "(Vampirism) Vanilla"
+  return "Vampirism"
 endFunction
 
 bool function InfectPlayer(Actor infectingActor)
