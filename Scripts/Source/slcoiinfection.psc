@@ -12,6 +12,9 @@ float property PlayerProbability auto
 float property NonPlayerProbabilityDefault auto
 float property PlayerProbabilityDefault auto
 
+float property NonPlayerFakeInfectionProbability auto
+float property DefaultNonPlayerFakeInfectionProbability auto
+
 string function GetName()
   return "" ; Infection Name (Unique!)
 endFunction
@@ -118,5 +121,28 @@ bool function hasProbabilityOccurred(bool forNPC = false)
     return true
   endIf
 
+  return false
+endFunction
+
+bool function hasFakeProbabilityOccurred(Actor infectingActor)
+  System.Actors.Register(infectingActor)
+
+  if(System.Actors.wasFakeInfectedSet(infectingActor, self))
+    System.DebugMessage("NPC already checked for fake infection")
+    return System.Actors.IsFakeInfected(infectingActor, self)
+  endIf
+
+  float random = Utility.RandomFloat()
+
+  if(random <= NonPlayerFakeInfectionProbability                              \
+  && NonPlayerFakeInfectionProbability > 0)
+    System.Actors.SetFakeInfected(infectingActor, self)
+
+    System.DebugMessage("NPC is infected with " + GetName() + " (Fake infection)")
+
+    return true
+  endIf
+
+  System.Actors.SetFakeInfected(infectingActor, self, false)
   return false
 endFunction
