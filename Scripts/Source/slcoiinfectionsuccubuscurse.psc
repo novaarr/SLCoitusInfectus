@@ -19,6 +19,8 @@ function Load()
   if(PSQ) ; add: SuccubusHearts, ..
     Supported = true
 
+    System.DebugMessage("Detected: PlayerSuccubusQuest")
+
   else
     Supported = false
     Enabled = false

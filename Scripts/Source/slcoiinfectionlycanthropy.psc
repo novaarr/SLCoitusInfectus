@@ -22,6 +22,11 @@ function Load()
   if(MTP)
     MTPlayerFramework = MTP as MT_Quest_PlayerFrameworkScript
     MTSupport = true
+
+    System.DebugMessage("Detected: Moonlight Tales")
+
+  else
+    MTSupport = false
   endIf
 
   Supported = true
