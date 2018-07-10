@@ -4,6 +4,7 @@ scriptname SLCoiSystem extends Quest hidden
 string property ModEventTry = "SLCoi_TryInfectActor" autoReadOnly
 string property ModEventStartup = "SLCoi_Setup" autoReadOnly
 string property ModEventShutdown = "SLCoi_Shutdown" autoReadOnly
+;string property ModEventUninstall = "SLCoi_Uninstall" autoReadOnly
 
 int property SceneWaitTime = 2 autoReadOnly
 int property MaxSceneWaitTime = 20 autoReadOnly
@@ -40,6 +41,9 @@ endProperty
 bool property OptNPCInfections auto
 int property OptInfectionCause auto
 
+; Dependencies
+bool property DepPapyrusUtil auto
+
 ; Internal
 Actor property PlayerRef auto
 SexLabFramework property SexLab auto
@@ -47,11 +51,7 @@ SexLabFramework property SexLab auto
 SLCoiInfectionRegistry property Infections auto
 SLCoiActorRegistry property Actors auto
 
-string settingsPath = "./data/slcoitusinfectus/config.json"
-
-; Dependencies
-; - PapyrusUtil
-; - JSONUtil (remove that one and use PapyrusUtils' json interface instead)
+string SettingsFile = "slcoitusinfectus-config.json"
 
 ; Support for mods starting scenes
 DefeatConfig SLDefeatConfig = None
@@ -78,11 +78,25 @@ function UnloadSupportedMods()
   SLDeviousDevicesLib = None
 endFunction
 
+bool function DependencyCheck()
+  if(SKSE.GetPluginVersion("papyrusutil plugin") == -1)
+    DepPapyrusUtil = false
+  else
+    DepPapyrusUtil = true
+  endIf
+
+  return (DepPapyrusUtil)
+endFunction
+
 function Setup(bool isCellLoad = false)
   if(!isActive)
-    DebugMessage("Mod not active")
     return
   endif
+
+  if(!DependencyCheck())
+    DebugMessage("ERROR: Dependencies not found. Make sure to meet the requirements!")
+    return
+  endIf
 
   ; Re-/Loading the registry if the game is loaded to make sure
   ; that the previously supported mods are still running.
@@ -131,35 +145,37 @@ endFunction
 
 ; Import / Export of settings
 function SettingsImport()
-  int settings = JValue.readFromFile(settingsPath)
+  if(!JsonUtil.Load(SettingsFile))
+    return
+  endIf
 
-  OptInfectionCause = JMap.getInt(settings, "General.InfectionCause")
-  OptNPCInfections = JMap.getInt(settings, "General.NPCInfections") as bool
-  OptDebug = JMap.getInt(settings, "General.Debug") as bool
+  OptInfectionCause = JsonUtil.GetIntValue(SettingsFile, "General.InfectionCause")
+  OptNPCInfections = JsonUtil.GetIntValue(SettingsFile, "General.NPCInfections") as bool
+  OptDebug = JsonUtil.GetIntValue(SettingsFile, "General.Debug") as bool
 
-  Infections.Vampirism.Enabled = JMap.getInt(settings, "Infection.Vampirism.Enabled") as bool
-  Infections.Vampirism.NonPlayerProbability = JMap.getFlt(settings, "Infection.Vampirism.NonPlayerProbability")
-  Infections.Vampirism.PlayerProbability = JMap.getFlt(settings, "Infection.Vampirism.PlayerProbability")
+  Infections.Vampirism.Enabled = JsonUtil.GetIntValue(SettingsFile, "Infection.Vampirism.Enabled") as bool
+  Infections.Vampirism.NonPlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Vampirism.NonPlayerProbability")
+  Infections.Vampirism.PlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Vampirism.PlayerProbability")
 
-  Infections.Lycanthropy.Enabled = JMap.getInt(settings, "Infection.Lycanthropy.Enabled") as bool
-  Infections.Lycanthropy.NonPlayerProbability = JMap.getFlt(settings, "Infection.Lycanthropy.NonPlayerProbability")
-  Infections.Lycanthropy.PlayerProbability = JMap.getFlt(settings, "Infection.Lycanthropy.PlayerProbability")
+  Infections.Lycanthropy.Enabled = JsonUtil.GetIntValue(SettingsFile, "Infection.Lycanthropy.Enabled") as bool
+  Infections.Lycanthropy.NonPlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lycanthropy.NonPlayerProbability")
+  Infections.Lycanthropy.PlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lycanthropy.PlayerProbability")
 
-  Infections.SuccubusCurse.Enabled = JMap.getInt(settings, "Infection.SuccubusCurse.Enabled") as bool
-  Infections.SuccubusCurse.NonPlayerProbability = JMap.getFlt(settings, "Infection.SuccubusCurse.NonPlayerProbability")
-  Infections.SuccubusCurse.PlayerProbability = JMap.getFlt(settings, "Infection.SuccubusCurse.PlayerProbability")
-  Infections.SuccubusCurse.NonPlayerFakeInfectionProbability = JMap.getFlt(settings, "Infection.SuccubusCurse.NonPlayerFakeInfectionProbability")
+  Infections.SuccubusCurse.Enabled = JsonUtil.GetIntValue(SettingsFile, "Infection.SuccubusCurse.Enabled") as bool
+  Infections.SuccubusCurse.NonPlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.SuccubusCurse.NonPlayerProbability")
+  Infections.SuccubusCurse.PlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.SuccubusCurse.PlayerProbability")
+  Infections.SuccubusCurse.NonPlayerFakeInfectionProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.SuccubusCurse.NonPlayerFakeInfectionProbability")
 
-  Infections.Lice.Enabled = JMap.getInt(settings, "Infection.Lice.Enabled") as bool
-  Infections.Lice.NonPlayerProbability = JMap.getFlt(settings, "Infection.Lice.NonPlayerProbability")
-  Infections.Lice.PlayerProbability = JMap.getFlt(settings, "Infection.Lice.PlayerProbability")
-  Infections.Lice.NonPlayerFakeInfectionProbability = JMap.getFlt(settings, "Infection.Lice.NonPlayerFakeInfectionProbability")
-  Infections.Lice.SeverityIncreasePerHour = JMap.getFlt(settings, "Infection.Lice.SeverityIncreasePerHour")
-  Infections.Lice.UnnervingThreshold = JMap.getFlt(settings, "Infection.Lice.UnnervingThreshold")
-  Infections.Lice.SevereThreshold = JMap.getFlt(settings, "Infection.Lice.SevereThreshold")
-  Infections.Lice.MildRegenDebuff = JMap.getFlt(settings, "Infection.Lice.MildRegenDebuff")
-  Infections.Lice.UnnervingRegenDebuff = JMap.getFlt(settings, "Infection.Lice.UnnervingRegenDebuff")
-  Infections.Lice.SevereRegenDebuff = JMap.getFlt(settings, "Infection.Lice.SevereRegenDebuff")
+  Infections.Lice.Enabled = JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.Enabled") as bool
+  Infections.Lice.NonPlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.NonPlayerProbability")
+  Infections.Lice.PlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.PlayerProbability")
+  Infections.Lice.NonPlayerFakeInfectionProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.NonPlayerFakeInfectionProbability")
+  Infections.Lice.SeverityIncreasePerHour = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SeverityIncreasePerHour")
+  Infections.Lice.UnnervingThreshold = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.UnnervingThreshold")
+  Infections.Lice.SevereThreshold = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SevereThreshold")
+  Infections.Lice.MildRegenDebuff = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.MildRegenDebuff")
+  Infections.Lice.UnnervingRegenDebuff = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.UnnervingRegenDebuff")
+  Infections.Lice.SevereRegenDebuff = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SevereRegenDebuff")
 
   DebugMessage("Settings imported")
 endFunction
@@ -167,42 +183,42 @@ endFunction
 function SettingsExport()
   int settings = JMap.object()
 
-  JMap.setInt(settings, "General.InfectionCause", OptInfectionCause)
-  JMap.setInt(settings, "General.NPCInfections", OptNPCInfections as int)
-  JMap.setInt(settings, "General.Debug", OptDebug as int)
+  JsonUtil.SetIntValue(SettingsFile, "General.InfectionCause", OptInfectionCause)
+  JsonUtil.SetIntValue(SettingsFile, "General.NPCInfections", OptNPCInfections as int)
+  JsonUtil.SetIntValue(SettingsFile, "General.Debug", OptDebug as int)
 
-  JMap.setInt(settings, "Infection.Vampirism.Enabled", Infections.Vampirism.Enabled as int)
-  JMap.setFlt(settings, "Infection.Vampirism.NonPlayerProbability", Infections.Vampirism.NonPlayerProbability)
-  JMap.setFlt(settings, "Infection.Vampirism.PlayerProbability", Infections.Vampirism.PlayerProbability)
+  JsonUtil.SetIntValue(SettingsFile, "Infection.Vampirism.Enabled", Infections.Vampirism.Enabled as int)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Vampirism.NonPlayerProbability", Infections.Vampirism.NonPlayerProbability)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Vampirism.PlayerProbability", Infections.Vampirism.PlayerProbability)
 
-  JMap.setInt(settings, "Infection.Lycanthropy.Enabled", Infections.Lycanthropy.Enabled as int)
-  JMap.setFlt(settings, "Infection.Lycanthropy.NonPlayerProbability", Infections.Lycanthropy.NonPlayerProbability)
-  JMap.setFlt(settings, "Infection.Lycanthropy.PlayerProbability", Infections.Lycanthropy.PlayerProbability)
+  JsonUtil.SetIntValue(SettingsFile, "Infection.Lycanthropy.Enabled", Infections.Lycanthropy.Enabled as int)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lycanthropy.NonPlayerProbability", Infections.Lycanthropy.NonPlayerProbability)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lycanthropy.PlayerProbability", Infections.Lycanthropy.PlayerProbability)
 
-  JMap.setInt(settings, "Infection.SuccubusCurse.Enabled", Infections.SuccubusCurse.Enabled as int)
-  JMap.setFlt(settings, "Infection.SuccubusCurse.NonPlayerProbability", Infections.SuccubusCurse.NonPlayerProbability)
-  JMap.setFlt(settings, "Infection.SuccubusCurse.PlayerProbability", Infections.SuccubusCurse.PlayerProbability)
-  JMap.setFlt(settings, "Infection.SuccubusCurse.NonPlayerFakeInfectionProbability", Infections.SuccubusCurse.NonPlayerFakeInfectionProbability)
+  JsonUtil.SetIntValue(SettingsFile, "Infection.SuccubusCurse.Enabled", Infections.SuccubusCurse.Enabled as int)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.SuccubusCurse.NonPlayerProbability", Infections.SuccubusCurse.NonPlayerProbability)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.SuccubusCurse.PlayerProbability", Infections.SuccubusCurse.PlayerProbability)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.SuccubusCurse.NonPlayerFakeInfectionProbability", Infections.SuccubusCurse.NonPlayerFakeInfectionProbability)
 
-  JMap.setInt(settings, "Infection.Lice.Enabled", Infections.Lice.Enabled as int)
-  JMap.setFlt(settings, "Infection.Lice.NonPlayerProbability", Infections.Lice.NonPlayerProbability)
-  JMap.setFlt(settings, "Infection.Lice.PlayerProbability", Infections.Lice.PlayerProbability)
-  JMap.setFlt(settings, "Infection.Lice.NonPlayerFakeInfectionProbability", Infections.Lice.NonPlayerFakeInfectionProbability)
-  JMap.setFlt(settings, "Infection.Lice.SeverityIncreasePerHour", Infections.Lice.SeverityIncreasePerHour)
-  JMap.setFlt(settings, "Infection.Lice.UnnervingThreshold", Infections.Lice.UnnervingThreshold)
-  JMap.setFlt(settings, "Infection.Lice.SevereThreshold", Infections.Lice.SevereThreshold)
-  JMap.setFlt(settings, "Infection.Lice.MildRegenDebuff", Infections.Lice.MildRegenDebuff)
-  JMap.setFlt(settings, "Infection.Lice.UnnervingRegenDebuff", Infections.Lice.UnnervingRegenDebuff)
-  JMap.setFlt(settings, "Infection.Lice.SevereRegenDebuff", Infections.Lice.SevereRegenDebuff)
+  JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.Enabled", Infections.Lice.Enabled as int)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.NonPlayerProbability", Infections.Lice.NonPlayerProbability)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.PlayerProbability", Infections.Lice.PlayerProbability)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.NonPlayerFakeInfectionProbability", Infections.Lice.NonPlayerFakeInfectionProbability)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SeverityIncreasePerHour", Infections.Lice.SeverityIncreasePerHour)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.UnnervingThreshold", Infections.Lice.UnnervingThreshold)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SevereThreshold", Infections.Lice.SevereThreshold)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.MildRegenDebuff", Infections.Lice.MildRegenDebuff)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.UnnervingRegenDebuff", Infections.Lice.UnnervingRegenDebuff)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SevereRegenDebuff", Infections.Lice.SevereRegenDebuff)
 
-  JValue.writeToFile(settings, settingsPath)
-
-  DebugMessage("Settings exported")
+  if(JsonUtil.Save(SettingsFile))
+    DebugMessage("Settings exported")
+  endIf
 endFunction
 
 ; Infection Application / Curing
 bool function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor target)
-  if(Infections.Player && target == PlayerRef)
+  if(Infections.isMajorInfection(infection) && Infections.hasMajorInfection(target))
     return false
   endIf
 
@@ -213,28 +229,17 @@ bool function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor ta
   if(!infection.hasProbabilityOccurred(target != PlayerRef))
     return false
   else
-    DebugMessage("Probability occurred for actor '" + target.GetActorBase().GetName())
+    DebugMessage("Probability occurred for " + target.GetActorBase().GetName())
   endIf
 
   if(!infection.Apply(infectingActor, target))
     return false
   endIf
 
-  if(target == PlayerRef)
-    Infections.Player = infection
-  endIf
-
   return true
 endFunction
 
 function CureInfection(Actor anActor)
-  if(anActor == PlayerRef && Infections.Player && Infections.Player.Supported)
-    DebugMessage("Curing Player")
-    Infections.Player.Cure(PlayerRef)
-    Infections.Player = None
-
-    return
-  endIf
   DebugMessage("Curing Actor")
 
   if(Infections.Vampirism.IsInfected(anActor))
@@ -304,12 +309,6 @@ event OnSexLabAnimationEnd(Form an_actor, int tid)
     return
   endIf
 
-  ; If player is already infected and NPC infections are turned off, abort
-  if(!OptNPCInfections && Infections.Player)
-    DebugMessage("Player is already infected and NPC infections are turned off. Aborting.")
-    return
-  endIf
-
   ; Current animation matching the cause of an infectino?
   if(!IsValidInfectionCause(thread))
     DebugMessage("Animation not matching causes. Aborting.")
@@ -343,17 +342,14 @@ event OnTryInfectActor(int threadId, Form infectingActorForm, Form targetForm)
   int totalSceneWaitTime = 0
 
   ; Scenes / Animations running?
-  totalSceneWaitTime = 0
   while(thread.IsLocked && totalSceneWaitTime < MaxSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (SexLab)")
 
     Utility.Wait(SceneWaitTime)
     totalSceneWaitTime += SceneWaitTime
-
   endWhile
 
-  totalSceneWaitTime = 0
   while(SLDeviousDevicesLib.isAnimating(target)                               \
   && totalSceneWaitTime < MaxSceneWaitTime)
 
@@ -361,7 +357,6 @@ event OnTryInfectActor(int threadId, Form infectingActorForm, Form targetForm)
 
     Utility.Wait(SceneWaitTime)
     totalSceneWaitTime += SceneWaitTime
-
   endWhile
 
   while(SLDefeatConfig                                                        \
@@ -373,16 +368,15 @@ event OnTryInfectActor(int threadId, Form infectingActorForm, Form targetForm)
 
     Utility.Wait(SceneWaitTime)
     totalSceneWaitTime += SceneWaitTime
-
   endWhile
 
-  while(DeviousCursedLootRunning() && target == PlayerRef)
+  while(DeviousCursedLootRunning() && target == PlayerRef                     \
+  &&  totalSceneWaitTime < MaxSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (Devious Cursed Loot)")
 
     Utility.Wait(SceneWaitTime)
     totalSceneWaitTime += SceneWaitTime
-
   endWhile
 
   ; In combat?
@@ -396,14 +390,14 @@ event OnTryInfectActor(int threadId, Form infectingActorForm, Form targetForm)
   endIf
 
   ; Try!
-  if(!TryInfect(Infections.Vampirism, infectingActor, target))
-    if(!TryInfect(Infections.Lycanthropy, infectingActor, target))
-      TryInfect(Infections.SuccubusCurse, infectingActor, target)
-    endIf
-  endIf
+  ; TODO: find a better way to fake infect npcs
+  TryInfect(Infections.Vampirism, infectingActor, target)
+  TryInfect(Infections.Lycanthropy, infectingActor, target)
+  TryInfect(Infections.SuccubusCurse, infectingActor, target)
+  TryInfect(Infections.Lice, infectingActor, target)
 
   ; Restart combat
-  if(wasInCombatWithTarget)
+  if(wasInCombatWithTarget && !infectingActor.IsDead() && !target.IsDead())
     Utility.Wait(SceneWaitTime * 5) ; wait a little
     infectingActor.StartCombat(target)
   endIf
