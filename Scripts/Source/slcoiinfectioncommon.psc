@@ -3,9 +3,6 @@ scriptname SLCoiInfectionCommon extends SLCoiInfection hidden
 Spell property SpellApplicationRef auto
 MagicEffect property MEDebuffRef auto
 
-float property NonPlayerFakeInfectionProbability auto
-float property DefaultNonPlayerFakeInfectionProbability auto
-
 bool function InfectPlayer(Actor infectingActor)
   return InfectNonPlayer(infectingActor, System.PlayerRef)
 endFunction
