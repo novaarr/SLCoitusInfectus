@@ -9,6 +9,12 @@ After you've had sex and every condition was met you'll be infected 5s after the
 Currently there is support for English and German. If you translate it to any other language, let me know and I'll add it.
 
 
+## Requirements
+
+- SexLab Framework 
+- PapyrusUtil (Usually already installed with the SexLab Framework)
+
+
 ## Compability / Support
 
 #### Moonlight Tales
