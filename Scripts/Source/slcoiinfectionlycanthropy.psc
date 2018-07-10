@@ -142,14 +142,6 @@ bool function IsInfectedMT(Actor anActor)
 endFunction
 
 bool function CanInfect(Actor target)
-  if(System.Infections.Vampirism.IsInfected(target))
-    return false
-  endIf
-
-  if(System.Infections.SuccubusCurse.IsInfected(target))
-    return false
-  endIf
-
   return parent.CanInfect(target)
 endFunction
 

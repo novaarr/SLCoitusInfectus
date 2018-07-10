@@ -69,13 +69,5 @@ bool function IsInfected(Actor anActor)
 endFunction
 
 bool function CanInfect(Actor target)
-  if(System.Infections.Lycanthropy.IsInfected(target))
-    return false
-  endIf
-
-  if(System.Infections.SuccubusCurse.IsInfected(target))
-    return false
-  endIf
-
   return parent.CanInfect(target)
 endFunction

@@ -1,8 +1,5 @@
 scriptname SLCoiInfectionSuccubusCurse extends SLCoiInfection hidden
 
-float property NonPlayerFakeInfectionProbability auto
-float property DefaultNonPlayerFakeInfectionProbability auto
-
 bool property PSQSupport auto
 
 PlayerSuccubusQuestScript PSQScript
@@ -74,36 +71,5 @@ bool function CanInfect(Actor target)
     return false
   endIf
 
-  if(System.Infections.Lycanthropy.IsInfected(target))
-    return false
-  endIf
-
-  if(System.Infections.Vampirism.IsInfected(target))
-    return false
-  endIf
-
   return parent.CanInfect(target)
-endFunction
-
-bool function hasFakeProbabilityOccurred(Actor infectingActor)
-  System.Actors.Register(infectingActor)
-
-  if(System.Actors.wasFakeInfectedSet(infectingActor, self))
-    System.DebugMessage("NPC already checked for fake infection")
-    return System.Actors.IsFakeInfected(infectingActor, self)
-  endIf
-
-  float random = Utility.RandomFloat()
-
-  if(random <= NonPlayerFakeInfectionProbability                              \
-  && NonPlayerFakeInfectionProbability > 0)
-    System.Actors.SetFakeInfected(infectingActor, self)
-
-    System.DebugMessage("NPC is treated as Succubus")
-
-    return true
-  endIf
-
-  System.Actors.SetFakeInfected(infectingActor, self, false)
-  return false
 endFunction
