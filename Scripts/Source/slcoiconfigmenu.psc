@@ -1,6 +1,6 @@
 scriptname SLCoiConfigMenu extends SKI_ConfigBase hidden
 
-; TODO: add collapsable menus, requirement checks (JSONUtil)
+; TODO: add collapsable menus
 
 SLCoiSystem property System auto
 
@@ -16,10 +16,6 @@ string COLOR_GREEN = "#55AA55"
 int oidStatusActive = -1
 
 int oidSettingsNPCInfections = -1
-
-int oidSettingsInfectionTypeLycanthropySelection = -1
-int oidSettingsInfectionTypeVampirismSelection = -1
-int oidSettingsInfectionTypeSuccubusCurseSelection = -1
 
 int oidSettingsInfectionTypeLycanthropyEnabled = -1
 int oidSettingsInfectionTypeVampirismEnabled = -1
@@ -156,11 +152,9 @@ event OnOptionSelect(int option)
 
   ; Cure
   elseIf(option == oidMiscCure)
-    if(System.Infections.Player)
       ShowMessage("$MiscCureMessage")
 
       System.CureInfection(System.PlayerRef)
-    endIf
 
   ; Import / Export
   elseIf(option == oidMiscImport)
@@ -185,59 +179,59 @@ event OnOptionSliderOpen(int option)
     ; simply use the same values as above, no need for further consts
     SetSliderDialogStartValue(System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability)
     SetSliderDialogDefaultValue(System.Infections.SuccubusCurse.DefaultNonPlayerFakeInfectionProbability)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   ; Lycanthropy
   elseIf(option == oidSettingsInfectionLycanthropyProbabilityPC)
     SetSliderDialogStartValue(System.Infections.Lycanthropy.PlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.Lycanthropy.PlayerProbabilityDefault)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   elseIf(option == oidSettingsInfectionLycanthropyProbabilityNPC)
     SetSliderDialogStartValue(System.Infections.Lycanthropy.NonPlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.Lycanthropy.NonPlayerProbabilityDefault)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   ; Vampirism
   elseIf(option == oidSettingsInfectionVampirismProbabilityPC)
     SetSliderDialogStartValue(System.Infections.Vampirism.PlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.Vampirism.PlayerProbabilityDefault)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   elseIf(option == oidSettingsInfectionVampirismProbabilityNPC)
     SetSliderDialogStartValue(System.Infections.Vampirism.NonPlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.Vampirism.NonPlayerProbabilityDefault)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   ; Succubus Curse
   elseIf(option == oidSettingsInfectionSuccubusCurseProbabilityPC)
     SetSliderDialogStartValue(System.Infections.SuccubusCurse.PlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.SuccubusCurse.PlayerProbabilityDefault)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   elseIf(option == oidSettingsInfectionSuccubusCurseProbabilityNPC)
     SetSliderDialogStartValue(System.Infections.SuccubusCurse.NonPlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.SuccubusCurse.NonPlayerProbabilityDefault)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   ; Lice
   elseIf(option == oidSettingsInfectionLiceProbabilityPC)
     SetSliderDialogStartValue(System.Infections.Lice.PlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.Lice.PlayerProbabilityDefault)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   elseIf(option == oidSettingsInfectionLiceProbabilityNPC)
     SetSliderDialogStartValue(System.Infections.Lice.NonPlayerProbability)
     SetSliderDialogDefaultValue(System.Infections.Lice.NonPlayerProbabilityDefault)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   elseIf(option == oidSettingsInfectionLiceSeverityIncrease)
@@ -249,37 +243,37 @@ event OnOptionSliderOpen(int option)
   elseIf(option == oidSettingsInfectionLiceUnnervingThreshold)
     SetSliderDialogStartValue(System.Infections.Lice.UnnervingThreshold)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultUnnervingThreshold)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.1)
     SetSliderDialogRange(0.1, 1.0)
 
   elseIf(option == oidSettingsInfectionLiceSevereThreshold)
     SetSliderDialogStartValue(System.Infections.Lice.SevereThreshold)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSevereThreshold)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.1)
     SetSliderDialogRange(0.2, 1.0)
 
   elseIf(option == oidSettingsInfectionLiceMildDebuff)
     SetSliderDialogStartValue(System.Infections.Lice.MildRegenDebuff)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultMildRegenDebuff)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   elseIf(option == oidSettingsInfectionLiceUnnervingDebuff)
     SetSliderDialogStartValue(System.Infections.Lice.UnnervingRegenDebuff)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultUnnervingRegenDebuff)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   elseIf(option == oidSettingsInfectionLiceSevereDebuff)
     SetSliderDialogStartValue(System.Infections.Lice.SevereRegenDebuff)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSevereRegenDebuff)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   elseIf(option == oidSettingsInfectionLiceFakeNPCProbability)
     SetSliderDialogStartValue(System.Infections.Lice.NonPlayerFakeInfectionProbability)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultNonPlayerFakeInfectionProbability)
-    SetSliderDialogInterval(0.01)
+    SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
   endIf
@@ -353,6 +347,36 @@ function SetupPageStatus()
       )                                                                       \
     )
 
+  SetCursorPosition(TOP_RIGHT)
+
+  AddHeaderOption("$StatusDependencies")
+
+  AddTextOption(                                                              \
+    SexLabUtil.StringIfElse(System.DepPapyrusUtil,                            \
+          ColoredText("$STATUSDEPENDENCYPAPYRUSUTIL", COLOR_GREEN),           \
+          ColoredText("$STATUSDEPENDENCYPAPYRUSUTIL", COLOR_RED)              \
+      ),                                                                      \
+      ""                                                                      \
+    )
+
+  AddEmptyOption()
+
+  AddHeaderOption("$StatusSupportedMods")
+
+  AddTextOption(                                                              \
+    SexLabUtil.StringIfElse(System.Infections.Lycanthropy.MTSupport,          \
+      ColoredText("$STATUSSUPPORTMT", COLOR_GREEN),                           \
+      "$STATUSSUPPORTMT"                                                      \
+    ),                                                                        \
+    "")
+
+  AddTextOption(                                                              \
+    SexLabUtil.StringIfElse(System.Infections.SuccubusCurse.PSQSupport,       \
+      ColoredText("$STATUSSUPPORTPSQ", COLOR_GREEN),                          \
+      "$STATUSSUPPORTPSQ"                                                     \
+    ),                                                                        \
+    "")
+
 endFunction
 
 function SetupPageSettings()
@@ -367,6 +391,25 @@ function SetupPageSettings()
       OPTION_FLAG_DISABLED                                                    \
     )
 
+  AddEmptyOption()
+
+  AddHeaderOption("$SettingsInfectionCauses")
+
+  oidSettingsInfectionCauseVaginal =                                          \
+    AddToggleOption(                                                          \
+      "$SettingsInfectionCauseVaginal",                                       \
+      Math.LogicalAnd(System.OptInfectionCause, System.InfectionCauseVaginal))
+
+  oidSettingsInfectionCauseAnal =                                             \
+    AddToggleOption(                                                          \
+      "$SettingsInfectionCauseAnal",                                          \
+      Math.LogicalAnd(System.OptInfectionCause, System.InfectionCauseAnal))
+
+  oidSettingsInfectionCauseOral =                                             \
+    AddToggleOption(                                                          \
+      "$SettingsInfectionCauseOral",                                          \
+      Math.LogicalAnd(System.OptInfectionCause, System.InfectionCauseOral))
+
   ; Infection: Lycanthropy
   AddEmptyOption()
   AddHeaderOption("$SettingsInfectionTypeLycanthropy")
@@ -375,11 +418,6 @@ function SetupPageSettings()
     AddTextOption(                                                            \
       "$SettingsInfectionEnabled",                                            \
       System.Infections.Lycanthropy.Enabled)
-
-  oidSettingsInfectionTypeLycanthropySelection =                              \
-    AddMenuOption(                                                            \
-      "$SettingsInfectionSelection",                                          \
-      System.Infections.Lycanthropy.GetName())
 
   oidSettingsInfectionLycanthropyProbabilityPC =                              \
     AddSliderOption(                                                          \
@@ -401,11 +439,6 @@ function SetupPageSettings()
     AddTextOption(                                                            \
       "$SettingsInfectionEnabled",                                            \
       System.Infections.Vampirism.Enabled)
-
-  oidSettingsInfectionTypeVampirismSelection =                                \
-    AddMenuOption(                                                            \
-      "$SettingsInfectionSelection",                                          \
-      System.Infections.Vampirism.GetName())
 
   oidSettingsInfectionVampirismProbabilityPC =                                \
     AddSliderOption(                                                          \
@@ -435,11 +468,6 @@ function SetupPageSettings()
       System.Infections.SuccubusCurse.Enabled,                                \
       SuccubusCurseEnableSwitchFlags)
 
-  oidSettingsInfectionTypeSuccubusCurseSelection =                            \
-    AddMenuOption(                                                            \
-      "$SettingsInfectionSelection",                                          \
-      System.Infections.SuccubusCurse.GetName())
-
   oidSettingsInfectionSuccubusCurseProbabilityPC =                            \
     AddSliderOption(                                                          \
       "$SettingsInfectionProbabilityPC",                                      \
@@ -452,8 +480,13 @@ function SetupPageSettings()
       System.Infections.SuccubusCurse.NonPlayerProbability,                   \
       "$SettingsInfectionProbabilityFormat")
 
+  oidSettingsPSQNPCInfectionProbability = AddSliderOption(                  \
+    "$SettingsFakeNPCInfectionProbability",                                 \
+    System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability,      \
+    "$SettingsFakeNPCInfectionProbabilityFormat")
+
   ; Infection: Lice (STD)
-  AddEmptyOption()
+  SetCursorPosition(TOP_RIGHT)
   AddHeaderOption("$SLCoiSTDLice")
 
   oidSettingsInfectionTypeLiceEnabled =                                       \
@@ -522,36 +555,6 @@ function SetupPageSettings()
       "$SettingsFakeNPCInfectionProbabilityFormat"                            \
     )
 
-  AddEmptyOption()
-  AddHeaderOption("$SettingsInfectionCauses")
-
-  oidSettingsInfectionCauseVaginal =                                          \
-    AddToggleOption(                                                          \
-      "$SettingsInfectionCauseVaginal",                                       \
-      Math.LogicalAnd(System.OptInfectionCause, System.InfectionCauseVaginal))
-
-  oidSettingsInfectionCauseAnal =                                             \
-    AddToggleOption(                                                          \
-      "$SettingsInfectionCauseAnal",                                          \
-      Math.LogicalAnd(System.OptInfectionCause, System.InfectionCauseAnal))
-
-  oidSettingsInfectionCauseOral =                                             \
-    AddToggleOption(                                                          \
-      "$SettingsInfectionCauseOral",                                          \
-      Math.LogicalAnd(System.OptInfectionCause, System.InfectionCauseOral))
-
-  SetCursorPosition(TOP_RIGHT)
-
-  if(System.Infections.SuccubusCurse.PSQSupport)
-    AddHeaderOption("$SettingsPSQ")
-
-    oidSettingsPSQNPCInfectionProbability = AddSliderOption(                  \
-      "$SettingsFakeNPCInfectionProbability",                                 \
-      System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability,  \
-      "$SettingsFakeNPCInfectionProbabilityFormat")
-
-    AddEmptyOption()
-  endIf
 endFunction
 
 function SetupPageMisc()
@@ -566,29 +569,6 @@ function SetupPageMisc()
   oidMiscExport = AddTextOption("$MiscSettingsExport", "")
 
   SetCursorPosition(TOP_RIGHT)
-
-  AddHeaderOption("$MiscSupport")
-
-  AddTextOption(                                                              \
-    SexLabUtil.StringIfElse(System.Infections.Lycanthropy.MTSupport,          \
-      ColoredText("$MISCSUPPORTMT", COLOR_GREEN),                             \
-      ColoredText("$MISCSUPPORTMT", COLOR_RED)                                \
-    ),                                                                        \
-    "")
-
-  AddTextOption(                                                              \
-    SexLabUtil.StringIfElse(System.Infections.SuccubusCurse.PSQSupport,       \
-      ColoredText("$MISCSUPPORTPSQ", COLOR_GREEN),                            \
-      ColoredText("$MISCSUPPORTPSQ", COLOR_RED)                               \
-    ),                                                                        \
-    "")
-
-  AddEmptyOption()
-  AddEmptyOption()
-  AddEmptyOption()
-  AddEmptyOption()
-  AddEmptyOption()
-  AddEmptyOption()
 
   oidMiscDebug = AddToggleOption("$MiscDebug", System.OptDebug)
 endFunction
