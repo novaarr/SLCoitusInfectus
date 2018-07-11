@@ -388,7 +388,6 @@ function SetupPageSettings()
     AddToggleOption(                                                          \
       "$SettingsNPCInfections",                                               \
       System.OptNPCInfections,                                                \
-      OPTION_FLAG_DISABLED                                                    \
     )
 
   AddEmptyOption()
