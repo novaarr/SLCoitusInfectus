@@ -15,6 +15,8 @@ float property PlayerProbabilityDefault auto
 float property NonPlayerFakeInfectionProbability auto
 float property DefaultNonPlayerFakeInfectionProbability auto
 
+Message property InfectionMessageRef auto
+
 string function GetName()
   return "" ; Infection Name (Unique!)
 endFunction
@@ -54,6 +56,10 @@ bool function Apply(Actor infectingActor, Actor target)
     wasInfected = InfectPlayer(infectingActor)
   else
     wasInfected = InfectNonPlayer(infectingActor, target)
+  endIf
+
+  if(wasInfected && InfectionMessageRef)
+    InfectionMessageRef.Show()
   endIf
 
   return wasInfected
