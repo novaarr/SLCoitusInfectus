@@ -61,10 +61,6 @@ bool function IsInfected(Actor anActor)
     return false
   endIf
 
-  if(anActor != System.PlayerRef)
-    return hasFakeProbabilityOccurred(anActor)
-  endIf
-
   return (PSQScript.PlayerIsSuccubus.GetValue() == 1)
 endFunction
 

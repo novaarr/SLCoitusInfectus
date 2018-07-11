@@ -32,11 +32,19 @@ bool function isApplicable(Actor infectingActor, Actor target)
     return false
   endIf
 
-  if(!IsInfected(infectingActor) || !canInfect(target))
+  if(!canInfect(target))
     return false
   endIf
 
-  return true
+  if(infectingActor != System.PlayerRef                                       \
+  && !IsInfected(infectingActor)                                              \
+  && NonPlayerFakeInfectionProbability > 0)
+
+    determineFakeProbability(infectingActor)
+
+  endIf
+
+  return !IsInfected(infectingActor)
 endFunction
 
 bool function Apply(Actor infectingActor, Actor target)
@@ -124,7 +132,7 @@ bool function hasProbabilityOccurred(bool forNPC = false)
   return false
 endFunction
 
-bool function hasFakeProbabilityOccurred(Actor infectingActor)
+bool function determineFakeProbability(Actor infectingActor)
   System.Actors.Register(infectingActor)
 
   if(System.Actors.wasFakeInfectedSet(infectingActor, self))
