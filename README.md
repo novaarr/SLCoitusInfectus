@@ -11,7 +11,8 @@ Currently there is support for English and German. If you translate it to any ot
 
 ## Requirements
 
-- SexLab Framework 
+- SKSE
+- SexLab Framework
 - PapyrusUtil (Usually already installed with the SexLab Framework)
 
 
