@@ -106,7 +106,11 @@ bool function CurePlayerMT()
   CurePlayerVanilla()
 endFunction
 
-bool function IsInfected(Actor anActor)
+bool function IsInfected(Actor anActor, bool fakeInfection = true)
+  if(parent.IsInfected(anActor, fakeInfection))
+    return true
+  endIf
+
   if(MTSupport)
     return IsInfectedMT(anActor)
   endIf

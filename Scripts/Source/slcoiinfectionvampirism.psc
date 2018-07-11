@@ -51,7 +51,11 @@ bool function CurePlayer()
   return true
 endFunction
 
-bool function IsInfected(Actor anActor)
+bool function IsInfected(Actor anActor, bool fakeInfection = true)
+  if(parent.IsInfected(anActor, fakeInfection))
+    return true
+  endIf
+
   if(anActor.HasMagicEffect(MEVampireDiseaseRef))
     return true
   endIf
