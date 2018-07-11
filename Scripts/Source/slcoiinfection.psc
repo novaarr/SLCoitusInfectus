@@ -48,25 +48,12 @@ bool function isApplicable(Actor infectingActor, Actor target)
 endFunction
 
 bool function Apply(Actor infectingActor, Actor target)
-  return Infect(infectingActor, target)
-endFunction
-
-bool function Infect(Actor infectingActor, Actor target)
-  ;if(!Supported)
-  ;  System.DebugMessage("Unable to infect actor (" + GetName() + " is not loaded)")
-  ;  return false
-  ;endIf
-
   bool wasInfected = false
 
   if(target == System.PlayerRef)
     wasInfected = InfectPlayer(infectingActor)
   else
     wasInfected = InfectNonPlayer(infectingActor, target)
-  endIf
-
-  if(wasInfected)
-    System.DebugMessage(target.GetActorBase().GetName() + " has been infected with " + GetName() + " by " + infectingActor.GetActorBase().GetName())
   endIf
 
   return wasInfected
