@@ -26,9 +26,14 @@ Actor function Get(int at)
   return (StorageUtil.FormListGet(self as Form, StorageActorListKey, at) as Actor)
 endFunction
 
-function Clear(Actor target)
-  StorageUtil.UnsetIntValue(target as Form, StorageActorFakeInfectKey + "." + "Lice")
-  StorageUtil.UnsetIntValue(target as Form, StorageActorFakeInfectKey + "." + "SuccubusCurse")
+function Clear(Actor target, SLCoiInfection infection = None)
+  if(infection)
+    string fullKey = StorageActorFakeInfectKey + "." + infection.GetName()
+    StorageUtil.UnsetIntValue(target as Form, fullKey)
+  else
+    StorageUtil.UnsetIntValue(target as Form, StorageActorFakeInfectKey + "." + "Lice")
+    StorageUtil.UnsetIntValue(target as Form, StorageActorFakeInfectKey + "." + "SuccubusCurse")
+  endIf
 endFunction
 
 function SetFakeInfected(Actor target, SLCoiInfection infection, bool isInfected = true)
