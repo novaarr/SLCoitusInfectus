@@ -136,6 +136,27 @@ function Restart()
   Setup()
 endFunction
 
+function Uninstall()
+  int i = 0
+  int actor_count = Actors.Count()
+
+  while(actor_count > i)
+    Actor target = Actors.Get(i)
+
+    CureInfections(target)
+    Actors.Clear(target)
+
+    i += 1
+  endWhile
+
+  Actors.UnregisterAll()
+
+  CureInfections(PlayerRef)
+
+  Shutdown()
+  OptActive = false
+endFunction
+
 ; Debug stuff
 function DebugMessage(string msg)
   if(OptDebug)
@@ -236,10 +257,13 @@ bool function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor ta
     return false
   endIf
 
+  DebugMessage(target.GetActorBase().GetName() + " has been infected with "   \
+    + infection.GetName() + " by " + infectingActor.GetActorBase().GetName())
+
   return true
 endFunction
 
-function CureInfection(Actor anActor)
+function CureInfections(Actor anActor)
   DebugMessage("Curing Actor")
 
   if(Infections.Vampirism.IsInfected(anActor))
@@ -390,10 +414,10 @@ event OnTryInfectActor(int threadId, Form infectingActorForm, Form targetForm)
   endIf
 
   ; Try!
-  ; TODO: find a better way to fake infect npcs
   TryInfect(Infections.Vampirism, infectingActor, target)
   TryInfect(Infections.Lycanthropy, infectingActor, target)
   TryInfect(Infections.SuccubusCurse, infectingActor, target)
+
   TryInfect(Infections.Lice, infectingActor, target)
 
   ; Restart combat

@@ -52,6 +52,8 @@ int oidMiscCure = -1
 int oidMiscImport = -1
 int oidMiscExport = -1
 
+int oidMiscUninstall = -1
+
 ; Version
 int function GetVersion()
   return 2
@@ -153,8 +155,7 @@ event OnOptionSelect(int option)
   ; Cure
   elseIf(option == oidMiscCure)
       ShowMessage("$MiscCureMessage")
-
-      System.CureInfection(System.PlayerRef)
+      System.CureInfections(System.PlayerRef)
 
   ; Import / Export
   elseIf(option == oidMiscImport)
@@ -163,6 +164,10 @@ event OnOptionSelect(int option)
 
   elseIf(option == oidMiscExport)
     System.SettingsExport()
+    ShowMessage("$MessageDone")
+
+  elseIf(option == oidMiscUninstall)
+    System.Uninstall()
     ShowMessage("$MessageDone")
 
   else
@@ -387,7 +392,7 @@ function SetupPageSettings()
   oidSettingsNPCInfections =                                                  \
     AddToggleOption(                                                          \
       "$SettingsNPCInfections",                                               \
-      System.OptNPCInfections,                                                \
+      System.OptNPCInfections                                                 \
     )
 
   AddEmptyOption()
@@ -566,6 +571,9 @@ function SetupPageMisc()
   AddHeaderOption("$MiscSettings")
   oidMiscImport = AddTextOption("$MiscSettingsImport", "")
   oidMiscExport = AddTextOption("$MiscSettingsExport", "")
+
+  AddEmptyOption()
+  oidMiscUninstall = AddTextOption("$MiscUninstall", "")
 
   SetCursorPosition(TOP_RIGHT)
 
