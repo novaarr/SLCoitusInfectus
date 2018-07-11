@@ -40,27 +40,28 @@ event OnUpdateGameTime()
 
   rateDebuff += Infection.ResetRegenRates(targetRef, rateDebuff)
 
-  severity = Infection.UpdateSeverity(severity, lastUpdate)
+  if(Infection.Enabled)
+    severity = Infection.UpdateSeverity(severity, lastUpdate)
+    Infection.System.DebugMessage("Updated severity: " + severity)
+
+    if(targetRef == Infection.System.PlayerRef)
+      Game.DisablePlayerControls()
+    endIf
+
+    targetRef.EnableAI(false)
+
+    Infection.StartAnimation(severity, targetRef)
+
+    rateDebuff += Infection.DecreaseRegenRates(severity, targetRef)
+
+    if(targetRef == Infection.System.PlayerRef)
+      Game.EnablePlayerControls()
+    endIf
+
+    targetRef.EnableAI()
+  endIf
+
   lastUpdate = Utility.GetCurrentGameTime() * 24.0
-
-  Infection.System.DebugMessage("Updated severity: " + severity)
-
-  if(targetRef == Infection.System.PlayerRef)
-    Game.DisablePlayerControls()
-  endIf
-
-  targetRef.EnableAI(false)
-
-  Infection.StartAnimation(severity, targetRef)
-
-  rateDebuff += Infection.DecreaseRegenRates(severity, targetRef)
-
-  if(targetRef == Infection.System.PlayerRef)
-    Game.EnablePlayerControls()
-  endIf
-
-  targetRef.EnableAI()
-
   RegisterForSingleUpdateGameTime(1)
 endEvent
 

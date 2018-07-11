@@ -40,14 +40,13 @@ int oidSettingsInfectionLiceProbabilityNPC = -1
 int oidSettingsInfectionLiceSeverityIncrease = -1
 int oidSettingsInfectionLiceUnnervingThreshold = -1
 int oidSettingsInfectionLiceSevereThreshold = -1
-int oidSettingsInfectionLiceMildDebuff = -1
-int oidSettingsInfectionLiceUnnervingDebuff = -1
-int oidSettingsInfectionLiceSevereDebuff = -1
 int oidSettingsInfectionLiceFakeNPCProbability = -1
 
 int oidMiscDebug = -1
 
 int oidMiscCure = -1
+int oidMiscCureNearby = -1
+Actor[] tempNearbyActors
 
 int oidMiscImport = -1
 int oidMiscExport = -1
@@ -103,11 +102,6 @@ event OnOptionHighlight(int option)
 
   elseIf(option == oidSettingsNPCInfections)
     SetInfoText("$SettingsNPCInfectionsHint")
-
-  elseIf(option == oidSettingsInfectionLiceMildDebuff                         \
-  ||    option == oidSettingsInfectionLiceUnnervingDebuff                     \
-  ||    option == oidSettingsInfectionLiceSevereDebuff)
-    SetInfoText("$SettingsSTDLiceDebuffHint")
 
   elseIf(option == oidSettingsInfectionLiceSeverityIncrease)
     SetInfoText("$SettingsSTDLiceSeverityIncreasePerHourHint")
@@ -242,38 +236,20 @@ event OnOptionSliderOpen(int option)
   elseIf(option == oidSettingsInfectionLiceSeverityIncrease)
     SetSliderDialogStartValue(System.Infections.Lice.SeverityIncreasePerHour)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityIncreasePerHour)
-    SetSliderDialogInterval(0.01)
-    SetSliderDialogRange(0.0, 1.0)
+    SetSliderDialogInterval(1)
+    SetSliderDialogRange(0, 20)
 
   elseIf(option == oidSettingsInfectionLiceUnnervingThreshold)
-    SetSliderDialogStartValue(System.Infections.Lice.UnnervingThreshold)
+    SetSliderDialogStartValue(System.Infections.Lice.UnnervingThreshold.GetValue() as int)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultUnnervingThreshold)
-    SetSliderDialogInterval(0.1)
-    SetSliderDialogRange(0.1, 1.0)
+    SetSliderDialogInterval(1)
+    SetSliderDialogRange(1.0, 99.0)
 
   elseIf(option == oidSettingsInfectionLiceSevereThreshold)
-    SetSliderDialogStartValue(System.Infections.Lice.SevereThreshold)
+    SetSliderDialogStartValue(System.Infections.Lice.SevereThreshold.GetValue() as int)
     SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSevereThreshold)
-    SetSliderDialogInterval(0.1)
-    SetSliderDialogRange(0.2, 1.0)
-
-  elseIf(option == oidSettingsInfectionLiceMildDebuff)
-    SetSliderDialogStartValue(System.Infections.Lice.MildRegenDebuff)
-    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultMildRegenDebuff)
-    SetSliderDialogInterval(0.001)
-    SetSliderDialogRange(0.0, 1.0)
-
-  elseIf(option == oidSettingsInfectionLiceUnnervingDebuff)
-    SetSliderDialogStartValue(System.Infections.Lice.UnnervingRegenDebuff)
-    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultUnnervingRegenDebuff)
-    SetSliderDialogInterval(0.001)
-    SetSliderDialogRange(0.0, 1.0)
-
-  elseIf(option == oidSettingsInfectionLiceSevereDebuff)
-    SetSliderDialogStartValue(System.Infections.Lice.SevereRegenDebuff)
-    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSevereRegenDebuff)
-    SetSliderDialogInterval(0.001)
-    SetSliderDialogRange(0.0, 1.0)
+    SetSliderDialogInterval(1)
+    SetSliderDialogRange(2.0, 100.0)
 
   elseIf(option == oidSettingsInfectionLiceFakeNPCProbability)
     SetSliderDialogStartValue(System.Infections.Lice.NonPlayerFakeInfectionProbability)
@@ -313,22 +289,13 @@ event OnOptionSliderAccept(int option, float value)
     System.Infections.Lice.NonPlayerProbability = value
 
   elseIf(option == oidSettingsInfectionLiceSeverityIncrease)
-    System.Infections.Lice.SeverityIncreasePerHour = value
+    System.Infections.Lice.SeverityIncreasePerHour = value as int
 
   elseIf(option == oidSettingsInfectionLiceUnnervingThreshold)
-    System.Infections.Lice.UnnervingThreshold = value
+    System.Infections.Lice.UnnervingThreshold.SetValue(value)
 
   elseIf(option == oidSettingsInfectionLiceSevereThreshold)
-    System.Infections.Lice.SevereThreshold = value
-
-  elseIf(option == oidSettingsInfectionLiceMildDebuff)
-    System.Infections.Lice.MildRegenDebuff = value
-
-  elseIf(option == oidSettingsInfectionLiceUnnervingDebuff)
-    System.Infections.Lice.UnnervingRegenDebuff = value
-
-  elseIf(option == oidSettingsInfectionLiceSevereDebuff)
-    System.Infections.Lice.SevereRegenDebuff = value
+    System.Infections.Lice.SevereThreshold.SetValue(value)
 
   elseIf(option == oidSettingsInfectionLiceFakeNPCProbability)
     System.Infections.Lice.NonPlayerFakeInfectionProbability = value
@@ -336,6 +303,36 @@ event OnOptionSliderAccept(int option, float value)
   endIf
 
   ForcePageReset()
+endEvent
+
+event OnOptionMenuOpen(int option)
+  if(option == oidMiscCureNearby)
+    tempNearbyActors = MiscUtil.ScanCellNPCs(                                 \
+      System.PlayerRef as ObjectReference,                                    \
+      radius = 1000                                                           \
+    )
+
+    string[] actorNames = Utility.CreateStringArray(tempNearbyActors.Length)
+
+    int i = 0
+    while(i < tempNearbyActors.Length)
+      actorNames[i] = tempNearbyActors[i].GetActorBase().GetName()
+      i += 1
+    endWhile
+
+    SetMenuDialogOptions(actorNames)
+    SetMenuDialogStartIndex(0)
+  endIf
+endEvent
+
+event OnOptionMenuAccept(int option, int index)
+  if(option == oidMiscCureNearby)
+    System.CureInfections(tempNearbyActors[index])
+    ShowMessage("$MessageDone")
+
+    tempNearbyActors = new Actor[1] ; thanks bethesda for not implementing deletion
+    ;tempNearbyActors[0] = None
+  endIf
 endEvent
 
 ; Pages
@@ -520,36 +517,15 @@ function SetupPageSettings()
   oidSettingsInfectionLiceUnnervingThreshold =                                \
     AddSliderOption(                                                          \
       "$SettingsSTDLiceUnnervingThreshold",                                   \
-      System.Infections.Lice.UnnervingThreshold,                              \
+      System.Infections.Lice.UnnervingThreshold.GetValue(),                   \
       "$SettingsSTDLiceThresholdFormat"                                       \
     )
 
   oidSettingsInfectionLiceSevereThreshold =                                   \
     AddSliderOption(                                                          \
       "$SettingsSTDLiceSevereThreshold",                                      \
-      System.Infections.Lice.SevereThreshold,                                 \
+      System.Infections.Lice.SevereThreshold.GetValue(),                      \
       "$SettingsSTDLiceThresholdFormat"                                       \
-    )
-
-  oidSettingsInfectionLiceMildDebuff =                                        \
-    AddSliderOption(                                                          \
-      "$SettingsSTDLiceMildRegenDebuff",                                      \
-      System.Infections.Lice.MildRegenDebuff,                                 \
-      "$SettingsSTDLiceRegenDebuffFormat"                                     \
-    )
-
-  oidSettingsInfectionLiceUnnervingDebuff =                                   \
-    AddSliderOption(                                                          \
-      "$SettingsSTDLiceUnnervingRegenDebuff",                                 \
-      System.Infections.Lice.UnnervingRegenDebuff,                            \
-      "$SettingsSTDLiceRegenDebuffFormat"                                     \
-    )
-
-  oidSettingsInfectionLiceSevereDebuff =                                      \
-    AddSliderOption(                                                          \
-      "$SettingsSTDLiceSevereRegenDebuff",                                    \
-      System.Infections.Lice.SevereRegenDebuff,                               \
-      "$SettingsSTDLiceRegenDebuffFormat"                                     \
     )
 
   oidSettingsInfectionLiceFakeNPCProbability =                                \
@@ -566,6 +542,7 @@ function SetupPageMisc()
   SetCursorPosition(TOP_LEFT)
 
   oidMiscCure = AddTextOption("$MiscCureMe", "")
+  oidMiscCureNearby = AddMenuOption("$MiscCureNearby", "")
 
   AddEmptyOption()
   AddHeaderOption("$MiscSettings")

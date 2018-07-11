@@ -1,36 +1,64 @@
-scriptname SLCoiInfectionLice extends SLCoiInfectionCommon hidden
+scriptname SLCoiInfectionLice extends SLCoiInfection hidden
 
 ; TODO: Implement: Cure (Ingame), Lessen Severity (Ingame)
+Spell property RegenDebuffSpellRef auto
 
-float property SeverityIncreasePerHour auto
-float property DefaultSeverityIncreasePerHour auto
+MagicEffect property MagickaRegenDebuffRef auto
+MagicEffect property StaminaRegenDebuffRef auto
 
-float property UnnervingThreshold auto
-float property DefaultUnnervingThreshold auto
+int property SeverityIncreasePerHour auto
+int property DefaultSeverityIncreasePerHour auto
 
-float property SevereThreshold auto
-float property DefaultSevereThreshold auto
+GlobalVariable property UnnervingThreshold auto
+int property DefaultUnnervingThreshold auto
 
-; TODO: Whenever the debuff rates are about to get changed:
-;       Reset EVERY actor value modified who's infected
-float property MildRegenDebuff auto
-float property DefaultMildRegenDebuff auto
+GlobalVariable property SevereThreshold auto
+int property DefaultSevereThreshold auto
 
-float property UnnervingRegenDebuff auto
-float property DefaultUnnervingRegenDebuff auto
-
-float property SevereRegenDebuff auto
-float property DefaultSevereRegenDebuff auto
+Faction property SeverityFaction auto
 
 string[] property AnimationsMild auto
 string[] property AnimationsUnnerving auto
 string[] property AnimationsSevere auto
 
+; SLCoiInfection
 string function GetName()
   return "Lice"
 endFunction
 
-float function UpdateSeverity(float severity, float lastUpdate)
+bool function InfectPlayer(Actor infectingActor)
+  return InfectNonPlayer(infectingActor, System.PlayerRef)
+endFunction
+
+bool function InfectNonPlayer(Actor infectingActor, Actor target)
+  target.AddSpell(RegenDebuffSpellRef, false)
+  target.AddToFaction(SeverityFaction)
+
+  return IsInfected(target)
+endFunction
+
+bool function CurePlayer()
+  return CureNonPlayer(System.PlayerRef)
+endFunction
+
+bool function CureNonPlayer(Actor target)
+  target.DispelSpell(RegenDebuffSpellRef)
+  target.RemoveSpell(RegenDebuffSpellRef)
+
+  return true
+endFunction
+
+bool function IsInfected(Actor target, bool fakeInfection = true)
+  if(parent.IsInfected(target, fakeInfection))
+    return true
+  endIf
+
+  return  target.HasMagicEffect(MagickaRegenDebuffRef)                        \
+  &&      target.HasMagicEffect(StaminaRegenDebuffRef)
+endFunction
+
+; Infection
+float function UpdateSeverity(Actor target, float lastUpdate)
   float currentTime = Utility.GetCurrentGameTime() * 24.0
   float deltaTime = currentTime - lastUpdate
 
@@ -61,11 +89,11 @@ function StartAnimation(float severity, Actor target)
 
   return ; not yet implemented
 
-  if(severity < UnnervingThreshold)
+  if(severity < UnnervingThreshold.GetValue())
     int random = Utility.RandomInt(0, AnimationsMild.Length - 1)
     animation = AnimationsMild[random]
 
-  elseIf(severity >= UnnervingThreshold && severity < SevereThreshold)
+  elseIf(severity >= UnnervingThreshold.GetValue() && severity < SevereThreshold.GetValue())
     int random = Utility.RandomInt(0, AnimationsUnnerving.Length - 1)
     animation = AnimationsUnnerving[random]
 
@@ -76,37 +104,4 @@ function StartAnimation(float severity, Actor target)
   endIf
 
   Debug.SendAnimationEvent(target, animation)
-endFunction
-
-float function DecreaseRegenRates(float severity, Actor target)
-  float rateChange = 0
-
-  if(severity < UnnervingThreshold)
-    rateChange = -MildRegenDebuff
-
-  elseIf(severity >= UnnervingThreshold && severity < SevereThreshold)
-    rateChange = -UnnervingRegenDebuff
-
-  else
-    rateChange = -SevereRegenDebuff
-
-  endIf
-
-  System.DebugMessage("Modifying regen rates for actor '"+ target.GetActorBase().GetName()  +"': "+ rateChange)
-
-  target.ModAV("MagickaRate", rateChange)
-  target.ModAV("StaminaRate", rateChange)
-
-  return rateChange
-endFunction
-
-float function ResetRegenRates(Actor target, float rate)
-  target.ModAV("MagickaRate", -rate)
-  target.ModAV("StaminaRate", -rate)
-
-  return -rate
-endFunction
-
-bool function IsInfected(Actor target)
-  return target.HasMagicEffect(MEDebuffRef)
 endFunction
