@@ -4,7 +4,6 @@ scriptname SLCoiSystem extends Quest hidden
 string property ModEventTry = "SLCoi_TryInfectActor" autoReadOnly
 string property ModEventStartup = "SLCoi_Setup" autoReadOnly
 string property ModEventShutdown = "SLCoi_Shutdown" autoReadOnly
-;string property ModEventUninstall = "SLCoi_Uninstall" autoReadOnly
 
 int property SceneWaitTime = 2 autoReadOnly
 int property MaxSceneWaitTime = 20 autoReadOnly
@@ -191,12 +190,9 @@ function SettingsImport()
   Infections.Lice.NonPlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.NonPlayerProbability")
   Infections.Lice.PlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.PlayerProbability")
   Infections.Lice.NonPlayerFakeInfectionProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.NonPlayerFakeInfectionProbability")
-  Infections.Lice.SeverityIncreasePerHour = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SeverityIncreasePerHour")
-  Infections.Lice.UnnervingThreshold = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.UnnervingThreshold")
-  Infections.Lice.SevereThreshold = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SevereThreshold")
-  Infections.Lice.MildRegenDebuff = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.MildRegenDebuff")
-  Infections.Lice.UnnervingRegenDebuff = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.UnnervingRegenDebuff")
-  Infections.Lice.SevereRegenDebuff = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SevereRegenDebuff")
+  Infections.Lice.SeverityIncreasePerHour = JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.SeverityIncreasePerHour")
+  Infections.Lice.UnnervingThreshold.SetValue(JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.UnnervingThreshold"))
+  Infections.Lice.SevereThreshold.SetValue(JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.SevereThreshold"))
 
   DebugMessage("Settings imported")
 endFunction
@@ -225,12 +221,9 @@ function SettingsExport()
   JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.NonPlayerProbability", Infections.Lice.NonPlayerProbability)
   JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.PlayerProbability", Infections.Lice.PlayerProbability)
   JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.NonPlayerFakeInfectionProbability", Infections.Lice.NonPlayerFakeInfectionProbability)
-  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SeverityIncreasePerHour", Infections.Lice.SeverityIncreasePerHour)
-  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.UnnervingThreshold", Infections.Lice.UnnervingThreshold)
-  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SevereThreshold", Infections.Lice.SevereThreshold)
-  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.MildRegenDebuff", Infections.Lice.MildRegenDebuff)
-  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.UnnervingRegenDebuff", Infections.Lice.UnnervingRegenDebuff)
-  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SevereRegenDebuff", Infections.Lice.SevereRegenDebuff)
+  JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.SeverityIncreasePerHour", Infections.Lice.SeverityIncreasePerHour)
+  JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.UnnervingThreshold", Infections.Lice.UnnervingThreshold.GetValue() as int)
+  JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.SevereThreshold", Infections.Lice.SevereThreshold.GetValue() as int)
 
   if(JsonUtil.Save(SettingsFile))
     DebugMessage("Settings exported")
@@ -239,11 +232,29 @@ endFunction
 
 ; Infection Application / Curing
 bool function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor target)
-  if(Infections.isMajorInfection(infection) && Infections.hasMajorInfection(target))
+  if(!infection.Enabled || !infection.Supported)
     return false
   endIf
 
-  if(!infection.isApplicable(infectingActor, target))
+  if(infectingActor != PlayerRef                                              \
+  && infection.NonPlayerFakeInfectionProbability > 0)
+
+    infection.determineFakeProbability(infectingActor)
+
+    if(OptNPCInfections                                                       \
+    && infection.hasFakeProbabilityOccurred(infectingActor)                   \
+    && !infection.isInfected(infectingActor, false))
+
+      infection.Apply(infectingActor, infectingActor)
+    endIf
+  endIf
+
+  if(Infections.isMajorInfection(infection)                                   \
+  && Infections.hasMajorInfection(target))
+    return false
+  endIf
+
+  if(!infection.IsInfected(infectingActor))
     return false
   endIf
 
@@ -321,9 +332,54 @@ bool function DeviousCursedLootRunning()
   return true
 endFunction
 
+function WaitForSceneEnd(int threadId)
+  sslThreadController thread = SexLab.GetController(threadId)
+
+  int totalSceneWaitTime = 0
+
+  ; SexLAb
+  while(thread.IsLocked && totalSceneWaitTime < MaxSceneWaitTime)
+
+    DebugMessage("Waiting, Animations still active (SexLab)")
+
+    Utility.Wait(SceneWaitTime)
+    totalSceneWaitTime += SceneWaitTime
+  endWhile
+
+  ; Devious Devices
+  while(SLDeviousDevicesLib.isAnimating(PlayerRef)                            \
+  && totalSceneWaitTime < MaxSceneWaitTime)
+
+    DebugMessage("Waiting, Animations still active (DDi)")
+
+    Utility.Wait(SceneWaitTime)
+    totalSceneWaitTime += SceneWaitTime
+  endWhile
+
+  ; Defeat
+  while(SLDefeatConfig                                                        \
+  && SLDefeatConfig.IsDefeatActive(PlayerRef)                                 \
+  && totalSceneWaitTime < MaxSceneWaitTime)
+
+    DebugMessage("Waiting, Animations still active (Defeat)")
+
+    Utility.Wait(SceneWaitTime)
+    totalSceneWaitTime += SceneWaitTime
+  endWhile
+
+  ; Devious Cursed Loot
+  while(DeviousCursedLootRunning() && totalSceneWaitTime < MaxSceneWaitTime)
+
+    DebugMessage("Waiting, Animations still active (Devious Cursed Loot)")
+
+    Utility.Wait(SceneWaitTime)
+    totalSceneWaitTime += SceneWaitTime
+  endWhile
+endFunction
+
 ; Main
-event OnSexLabAnimationEnd(Form an_actor, int tid)
-  sslThreadController thread = SexLab.GetController(tid)
+event OnSexLabAnimationEnd(Form an_actor, int threadId)
+  sslThreadController thread = SexLab.GetController(threadId)
 
   DebugMessage("SexLab animation has ended. Trying to infect..")
 
@@ -345,85 +401,40 @@ event OnSexLabAnimationEnd(Form an_actor, int tid)
     Actor currentActor = thread.Positions[pos]
 
     if(currentActor != PlayerRef)
-      SendModEventTry(tid, currentActor, PlayerRef)
-
-      if(OptNPCInfections)
-        SendModEventTry(tid, PlayerRef, currentActor)
-      endIf
+      SendModEventTry(threadId, currentActor)
     endIf
 
     pos += 1
   endWhile
 endEvent
 
-event OnTryInfectActor(int threadId, Form infectingActorForm, Form targetForm)
-  Actor infectingActor = infectingActorForm as Actor
-  Actor target = targetForm as Actor
-
-  sslThreadController thread = SexLab.GetController(threadId)
-
+event OnTryInfectActor(int threadId, Form NonPlayerForm)
+  Actor NonPlayer = NonPlayerForm as Actor
   bool wasInCombatWithTarget = false
-  int totalSceneWaitTime = 0
 
   ; Scenes / Animations running?
-  while(thread.IsLocked && totalSceneWaitTime < MaxSceneWaitTime)
-
-    DebugMessage("Waiting, Animations still active (SexLab)")
-
-    Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime += SceneWaitTime
-  endWhile
-
-  while(SLDeviousDevicesLib.isAnimating(target)                               \
-  && totalSceneWaitTime < MaxSceneWaitTime)
-
-    DebugMessage("Waiting, Animations still active (DDi)")
-
-    Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime += SceneWaitTime
-  endWhile
-
-  while(SLDefeatConfig                                                        \
-  && SLDefeatConfig.IsDefeatActive(target)                                    \
-  && target == PlayerRef                                                      \
-  && totalSceneWaitTime < MaxSceneWaitTime)
-
-    DebugMessage("Waiting, Animations still active (Defeat)")
-
-    Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime += SceneWaitTime
-  endWhile
-
-  while(DeviousCursedLootRunning() && target == PlayerRef                     \
-  &&  totalSceneWaitTime < MaxSceneWaitTime)
-
-    DebugMessage("Waiting, Animations still active (Devious Cursed Loot)")
-
-    Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime += SceneWaitTime
-  endWhile
+  WaitForSceneEnd(threadId)
 
   ; In combat?
-  if(infectingActor.IsInCombat()                                              \
-  && infectingActor.GetCombatTarget() == target                               \
-  && infectingActor != PlayerRef)
+  if(NonPlayer.IsInCombat()                                                      \
+  && NonPlayer.GetCombatTarget() == PlayerRef)
     wasInCombatWithTarget = true
 
-    infectingActor.StopCombat()
-    target.StopCombatAlarm()
+    NonPlayer.StopCombat()
+    PlayerRef.StopCombatAlarm()
   endIf
 
   ; Try!
-  TryInfect(Infections.Vampirism, infectingActor, target)
-  TryInfect(Infections.Lycanthropy, infectingActor, target)
-  TryInfect(Infections.SuccubusCurse, infectingActor, target)
+  TryInfect(Infections.Vampirism, NonPlayer, PlayerRef)
+  TryInfect(Infections.Lycanthropy, NonPlayer, PlayerRef)
+  TryInfect(Infections.SuccubusCurse, NonPlayer, PlayerRef)
 
-  TryInfect(Infections.Lice, infectingActor, target)
+  TryInfect(Infections.Lice, NonPlayer, PlayerRef)
 
   ; Restart combat
-  if(wasInCombatWithTarget && !infectingActor.IsDead() && !target.IsDead())
+  if(wasInCombatWithTarget && !NonPlayer.IsDead() && !PlayerRef.IsDead())
     Utility.Wait(SceneWaitTime * 5) ; wait a little
-    infectingActor.StartCombat(target)
+    NonPlayer.StartCombat(PlayerRef)
   endIf
 endEvent
 
@@ -454,7 +465,7 @@ function SendModEventShutdown()
   endIf
 endFunction
 
-function SendModEventTry(int threadId, Actor infectingActor, Actor target)
+function SendModEventTry(int threadId, Actor NonPlayer)
   int handle = ModEvent.Create(ModEventTry)
 
   if(!handle)
@@ -463,8 +474,7 @@ function SendModEventTry(int threadId, Actor infectingActor, Actor target)
   endIf
 
   ModEvent.PushInt(handle, threadId)
-  ModEvent.PushForm(handle, infectingActor)
-  ModEvent.PushForm(handle, target)
+  ModEvent.PushForm(handle, NonPlayer)
 
   if(!ModEvent.Send(handle))
     DebugMessage("Something went wrong with the setup of this mod.")
