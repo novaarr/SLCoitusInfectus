@@ -5,7 +5,7 @@ SLCoiSystem property System auto
 event OnPlayerLoadGame()
   System.DebugMessage("OnPlayerLoadGame")
 
-  System.Restart()
+  System.Restart(soft = true)
 endEvent
 
 event OnCellLoad()
@@ -13,6 +13,5 @@ event OnCellLoad()
 
   System.Setup(isCellLoad = true)
 EndEvent
-
 
 ; TODO: Move event stuff for player here
