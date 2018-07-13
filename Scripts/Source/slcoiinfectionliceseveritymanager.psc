@@ -29,7 +29,7 @@ int function UpdateSeverity()
 
   if(severityCurrent == 100)
     System.DebugMessage("Lice ("+targetName+"): Severity limit has been reached")
-    return
+    return severityCurrent
   endIf
 
   System.DebugMessage("Lice ("+targetName+"): Last Update: " + lastUpdate)
