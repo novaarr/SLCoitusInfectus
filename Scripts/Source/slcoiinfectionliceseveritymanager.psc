@@ -19,21 +19,21 @@ endEvent
 function UpdateSeverity()
   Faction severityFaction = System.Infections.Lice.SeverityFaction
   Actor target = GetTargetActor()
+  string targetName = target.GetActorBase().GetName()
 
   float currentTime = Utility.GetCurrentGameTime() * 24.0
   float deltaTime = currentTime - lastUpdate
   int severityCurrent = target.GetFactionRank(severityFaction)
 
   if(severityCurrent == 100)
-    System.DebugMessage("Lice: Severity limit has been reached by "           \
-      + target.GetActorBase().GetName())
+    System.DebugMessage("Lice ("+targetName+"): Severity limit has been reached")
     return
   endIf
 
-  System.DebugMessage("Last Update: " + lastUpdate)
-  System.DebugMessage("Current Time: " + currentTime)
-  System.DebugMessage("Delta: " + deltaTime)
-  System.DebugMessage("Hourly Increase: " + System.Infections.Lice.SeverityIncreasePerHour)
+  System.DebugMessage("Lice ("+targetName+"): Last Update: " + lastUpdate)
+  System.DebugMessage("Lice ("+targetName+"):Current Time: " + currentTime)
+  System.DebugMessage("Lice ("+targetName+"):Delta: " + deltaTime)
+  System.DebugMessage("Lice ("+targetName+"):Hourly Increase: " + System.Infections.Lice.SeverityIncreasePerHour)
 
   float severityIncrease = System.Infections.Lice.SeverityIncreasePerHour * deltaTime
   float severityRest = severityIncrease - Math.abs(severityIncrease)
@@ -52,8 +52,7 @@ function UpdateSeverity()
 
   target.SetFactionRank(severityFaction, severityTotal)
 
-  System.DebugMessage("Increasing severity to " + severityTotal               \
-    + " for actor " + target.GetActorBase().GetName())
+  System.DebugMessage("Lice ("+targetName+"): Increasing severity to " + severityTotal)
 
   lastUpdate = currentTime
 endFunction
