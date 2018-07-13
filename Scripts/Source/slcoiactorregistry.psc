@@ -1,21 +1,64 @@
 scriptname SLCoiActorRegistry extends Quest hidden
 
-; TODO: purge list of dead actors (+ interval setting)
-; TODO: cleanup / uninstall
+float _CleanupInterval = 3600.0 ; 1h interval
+float property CleanupInterval
+  float function Get()
+    return _CleanupInterval
+  endFunction
 
+  function Set(float interval)
+    _CleanupInterval = interval
+    RegisterForSingleUpdate(_CleanupInterval)
+  endFunction
+endProperty
+float property DefaultCleanupInterval auto
+
+; Keys
 string property StorageActorListKey = "SLCoi.RegisteredActors" autoReadOnly
 string property StorageActorFakeInfectKey = "SLCoi.FakeInfect" autoReadOnly
+string property StorageActorInfectionsKey = "SLCoi.RegisteredInfectionsForActor" autoReadOnly
+
+; Registry
+function Load()
+  RegisterForSingleUpdate(_CleanupInterval)
+endFunction
+
+function Unload()
+  UnregisterForUpdate()
+endFunction
 
 function Register(Actor target)
-  StorageUtil.FormListAdd(self as Form, StorageActorListKey, target as Form, false)
+  if(!IsRegistered(target))
+    StorageUtil.FormListAdd(self as Form, StorageActorListKey, target as Form, false)
+  endif
 endFunction
 
 function Unregister(Actor target)
-  StorageUtil.FormListRemove(self as Form, StorageActorListKey, target as Form, true)
+  if(IsRegistered(target))
+    StorageUtil.FormListRemove(self as Form, StorageActorListKey, target as Form, true)
+  endIf
 endFunction
 
-function UnregisterAll()
-  StorageUtil.FormListClear(self as Form, StorageActorListKey)
+bool function IsRegistered(Actor target)
+  return StorageUtil.FormListHas(self as Form, StorageActorListKey, target as Form)
+endFunction
+
+function RegisterInfection(Actor target, SLCoiInfection infection)
+  Register(target)
+
+  if(!IsRegisteredInfection(target, infection))
+    StorageUtil.FormListAdd(target as Form, StorageActorInfectionsKey, infection as Form, false)
+  endif
+endFunction
+
+function UnregisterInfection(Actor target, SLCoiInfection infection)
+  if(IsRegisteredInfection(target, infection))
+    StorageUtil.FormListRemove(target as Form, StorageActorInfectionsKey, infection as Form, true)
+  endIf
+endFunction
+
+bool function IsRegisteredInfection(Actor target, SLCoiInfection infection)
+  return StorageUtil.FormListHas(target as Form, StorageActorInfectionsKey, infection as Form)
 endFunction
 
 int function Count()
@@ -26,14 +69,13 @@ Actor function Get(int at)
   return (StorageUtil.FormListGet(self as Form, StorageActorListKey, at) as Actor)
 endFunction
 
-function Clear(Actor target, SLCoiInfection infection = None)
-  if(infection)
-    string fullKey = StorageActorFakeInfectKey + "." + infection.GetName()
-    StorageUtil.UnsetIntValue(target as Form, fullKey)
-  else
-    StorageUtil.UnsetIntValue(target as Form, StorageActorFakeInfectKey + "." + "Lice")
-    StorageUtil.UnsetIntValue(target as Form, StorageActorFakeInfectKey + "." + "SuccubusCurse")
-  endIf
+function Clear(Actor target)
+  ; Infections
+  StorageUtil.FormListClear(target as Form, StorageActorInfectionsKey)
+
+  ; Fake Infections
+  StorageUtil.UnsetIntValue(target as Form, StorageActorFakeInfectKey + "." + "Lice")
+  StorageUtil.UnsetIntValue(target as Form, StorageActorFakeInfectKey + "." + "SuccubusCurse")
 endFunction
 
 function SetFakeInfected(Actor target, SLCoiInfection infection, bool isInfected = true)
@@ -55,3 +97,34 @@ bool function IsFakeInfected(Actor target, SLCoiInfection infection)
   string fullKey = StorageActorFakeInfectKey + "." + infection.GetName()
   return StorageUtil.GetIntValue(target as Form, fullKey) as bool
 endFunction
+
+function UnsetFakeInfection(Actor target, SLCoiInfection infection)
+  string fullKey = StorageActorFakeInfectKey + "." + infection.GetName()
+  StorageUtil.UnsetIntValue(target as Form, fullKey)
+endFunction
+
+; Cleanup
+function Cleanup()
+  int pos = Count()
+
+  if(pos == 0)
+    return
+  endIf
+
+  while(pos > 0)
+    Actor registeredActor = Get(pos - 1)
+
+    if(registeredActor.IsDead())
+      Clear(registeredActor)
+      Unregister(registeredActor)
+    endIf
+
+    pos -= 1
+  endwhile
+endFunction
+
+event OnUpdate()
+  Cleanup()
+
+  RegisterForSingleUpdate(_CleanupInterval)
+endEvent
