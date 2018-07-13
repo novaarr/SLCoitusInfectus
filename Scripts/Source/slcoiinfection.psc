@@ -2,7 +2,23 @@ scriptname SLCoiInfection extends Quest hidden
 
 SLCoiSystem property System auto
 
-bool property Enabled = false auto
+bool _Enabled = false
+bool property Enabled
+  bool function Get()
+    return _Enabled
+  endFunction
+
+  function Set(bool enable)
+    if(enable)
+      Enable()
+    else
+      Disable()
+    endIf
+
+    _Enabled = enable
+  endFunction
+endProperty
+
 bool property Supported = false auto
 ;bool property Interrupting = false auto ; Does interrupt on infection
 
@@ -19,6 +35,31 @@ Message property InfectionMessageRef auto
 
 string function GetName()
   return "" ; Infection Name (Unique!)
+endFunction
+
+function Enable()
+  int pos = 0
+  while(pos < System.Actors.Count())
+    Actor registeredActor = System.Actors.Get(pos)
+
+    if(!IsInfected(registeredActor)                                           \
+    && System.Actors.IsRegisteredInfection(registeredActor, self))
+      Apply(registeredActor, registeredActor)
+    endIf
+
+    pos += 1
+  endwhile
+endFunction
+
+function Disable()
+  int pos = 0
+  while(pos < System.Actors.Count())
+    Actor registeredActor = System.Actors.Get(pos)
+
+    Cure(registeredActor, unregisterActor = false)
+
+    pos += 1
+  endwhile
 endFunction
 
 function Load()
@@ -38,8 +79,12 @@ bool function Apply(Actor infectingActor, Actor target)
     wasInfected = InfectNonPlayer(infectingActor, target)
   endIf
 
-  if(wasInfected && InfectionMessageRef && target == System.PlayerRef)
-    InfectionMessageRef.Show()
+  if(wasInfected)
+    System.Actors.RegisterInfection(target, self)
+
+    if(InfectionMessageRef && target == System.PlayerRef)
+      InfectionMessageRef.Show()
+    endIf
   endIf
 
   return wasInfected
@@ -53,7 +98,7 @@ bool function InfectNonPlayer(Actor infectingActor, Actor target)
   return false
 endFunction
 
-bool function Cure(Actor target)
+bool function Cure(Actor target, bool unregisterActor = true)
   if(!Supported)
     System.DebugMessage("Unable to cure actor (" + GetName() + " is not loaded)")
     return false
@@ -67,11 +112,15 @@ bool function Cure(Actor target)
     wasCured = CureNonPlayer(target)
   endIf
 
-  if(System.Actors.wasFakeInfectedSet(target, self))
-    System.Actors.Clear(target, self)
-  endIf
-
   if(wasCured)
+    if(unregisterActor)
+      System.Actors.UnregisterInfection(target, self)
+
+      if(target != System.PlayerRef)
+        System.Actors.UnsetFakeInfection(target, self)
+      endIf
+    endIf
+
     System.DebugMessage(target.GetActorBase().GetName() + " has been cured of " + GetName())
   endIf
 
@@ -86,23 +135,19 @@ bool function CureNonPlayer(Actor target)
   return false
 endFunction
 
-bool function IsInfected(Actor target, bool fakeInfection = true)
-  if(hasFakeProbabilityOccurred(target) && fakeInfection)
+bool function IsInfected(Actor target, bool includeFakeInfection = true)
+  if(hasFakeProbabilityOccurred(target) && includeFakeInfection)
     return true
   endIf
 
   return false
 endFunction
 
-bool function canInfect(Actor target)
-  return false
-endFunction
-
-bool function hasProbabilityOccurred(bool forNPC = false)
+bool function hasProbabilityOccurred(bool probabilityForNPC = false)
   float random = Utility.RandomFloat()
   float probability = PlayerProbability
 
-  if(forNPC)
+  if(probabilityForNPC)
     probability = NonPlayerProbability
   endIf
 
@@ -113,32 +158,36 @@ bool function hasProbabilityOccurred(bool forNPC = false)
   return false
 endFunction
 
-function determineFakeProbability(Actor infectingActor)
-  if(infectingActor == System.PlayerRef)
+function determineFakeProbability(Actor target)
+  if(target == System.PlayerRef)
+    return
+  endIf
+
+  if(NonPlayerFakeInfectionProbability <= 0)
+    return
+  endIf
+
+  if(System.Actors.wasFakeInfectedSet(target, self))
     return
   endIf
 
   if(System.Infections.isMajorInfection(self)                                 \
-  && System.Infections.hasMajorInfection(infectingActor))
+  && System.Infections.hasMajorInfection(target))
     return
   endIf
 
-  System.Actors.Register(infectingActor)
-
-  if(System.Actors.wasFakeInfectedSet(infectingActor, self))
-    return
-  endIf
+  System.Actors.Register(target)
 
   float random = Utility.RandomFloat()
 
-  if(random <= NonPlayerFakeInfectionProbability                              \
-  && NonPlayerFakeInfectionProbability > 0)
-    System.Actors.SetFakeInfected(infectingActor, self)
+  if(random <= NonPlayerFakeInfectionProbability)
+    System.Actors.SetFakeInfected(target, self)
 
-    System.DebugMessage("NPC is infected with " + GetName() + " (Fake infection)")
+    System.DebugMessage("NPC (" + target.GetActorBase().GetName() + ")"       \
+    + "is infected with " + GetName() + " (fake)")
 
   else
-    System.Actors.SetFakeInfected(infectingActor, self, false)
+    System.Actors.SetFakeInfected(target, self, false)
   endIf
 endFunction
 
@@ -148,7 +197,7 @@ bool function hasFakeProbabilityOccurred(Actor infectingActor)
   endIf
 
   if(System.Actors.wasFakeInfectedSet(infectingActor, self))
-    System.DebugMessage("NPC already checked for fake infection (" +GetName()+ ")")
+    System.DebugMessage("NPC is set as infected with " +GetName()+ " (fake)")
     return System.Actors.IsFakeInfected(infectingActor, self)
   endIf
 
