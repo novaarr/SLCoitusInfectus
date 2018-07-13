@@ -44,6 +44,7 @@ bool property DepPapyrusUtil auto
 ; Internal
 Actor property PlayerRef auto
 SexLabFramework property SexLab auto
+sslThreadSlots property SexLabThreadSlots auto
 
 SLCoiInfectionRegistry property Infections auto
 SLCoiActorRegistry property Actors auto
@@ -327,8 +328,8 @@ bool function IsValidInfectionCause(sslThreadController thread)
 endFunction
 
 ; Misc - Scene Check
-bool function DeviousCursedLootRunning()
-  int isRunning = StorageUtil.GetIntValue(Game.GetPlayer(), "DCUR_SceneRunning", -1)
+bool function DeviousCursedLootRunning(Actor target)
+  int isRunning = StorageUtil.GetIntValue(target, "DCUR_SceneRunning", -1)
 
   if(isRunning < 1)
     return false
@@ -337,8 +338,8 @@ bool function DeviousCursedLootRunning()
   return true
 endFunction
 
-function WaitForSceneEnd(int threadId)
-  sslThreadController thread = SexLab.GetController(threadId)
+function WaitForSceneEnd(Actor target)
+  sslThreadController thread = SexLabThreadSlots.GetActorController(target)
 
   int totalSceneWaitTime = 0
 
@@ -352,7 +353,7 @@ function WaitForSceneEnd(int threadId)
   endWhile
 
   ; Devious Devices
-  while(SLDeviousDevicesLib.isAnimating(PlayerRef)                            \
+  while(SLDeviousDevicesLib.isAnimating(target)                            \
   && totalSceneWaitTime < MaxSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (DDi)")
@@ -363,7 +364,7 @@ function WaitForSceneEnd(int threadId)
 
   ; Defeat
   while(SLDefeatConfig                                                        \
-  && SLDefeatConfig.IsDefeatActive(PlayerRef)                                 \
+  && SLDefeatConfig.IsDefeatActive(target)                                 \
   && totalSceneWaitTime < MaxSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (Defeat)")
@@ -373,7 +374,7 @@ function WaitForSceneEnd(int threadId)
   endWhile
 
   ; Devious Cursed Loot
-  while(DeviousCursedLootRunning() && totalSceneWaitTime < MaxSceneWaitTime)
+  while(DeviousCursedLootRunning(target) && totalSceneWaitTime < MaxSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (Devious Cursed Loot)")
 
@@ -446,7 +447,7 @@ event OnTryInfectActor(int threadId, Form NonPlayerForm)
   bool wasInCombatWithTarget = false
 
   ; Scenes / Animations running?
-  WaitForSceneEnd(threadId)
+  WaitForSceneEnd(PlayerRef)
 
   ; In combat?
   if(NonPlayer.IsInCombat()                                                      \

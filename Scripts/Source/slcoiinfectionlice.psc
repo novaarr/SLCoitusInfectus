@@ -82,5 +82,9 @@ function StartAnimation(float severity, Actor target)
 
   endIf
 
+  ; wait for other scenes to end
+  System.WaitForSceneEnd(target)
+
+  ; well, go ahead
   Debug.SendAnimationEvent(target, animation)
 endFunction

@@ -11,12 +11,14 @@ event OnEffectStart(Actor target, Actor caster)
 endEvent
 
 event OnUpdateGameTime()
-  UpdateSeverity()
+  int severity = UpdateSeverity()
+
+  System.Infections.Lice.StartAnimation(severity, GetTargetActor())
 
   RegisterForSingleUpdateGameTime(1.0)
 endEvent
 
-function UpdateSeverity()
+int function UpdateSeverity()
   Faction severityFaction = System.Infections.Lice.SeverityFaction
   Actor target = GetTargetActor()
   string targetName = target.GetActorBase().GetName()
@@ -55,4 +57,6 @@ function UpdateSeverity()
   System.DebugMessage("Lice ("+targetName+"): Increasing severity to " + severityTotal)
 
   lastUpdate = currentTime
+
+  return severityTotal
 endFunction
