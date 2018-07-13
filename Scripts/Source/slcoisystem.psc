@@ -54,11 +54,13 @@ string SettingsFile = "slcoitusinfectus-config.json"
 ; Support for mods starting scenes
 DefeatConfig SLDefeatConfig = None
 zadLibs SLDeviousDevicesLib = None
+mzinBatheQuest property BathingInSkyrim = None auto
 
 ; System
 function LoadSupportedMods()
   Quest Defeat = Quest.GetQuest("DefeatRessourcesQst")
   Quest DDi = Quest.GetQuest("zadQuest")
+  Quest BiS = Quest.GetQuest("mzinBatheQuest")
 
   if(Defeat)
     DebugMessage("Detected: Defeat")
@@ -69,11 +71,17 @@ function LoadSupportedMods()
     DebugMessage("Detected: Devious Devices Integration (DDi)")
     SLDeviousDevicesLib = DDi as zadLibs
   endIf
+
+  if(BiS)
+    DebugMessage("Detected: Bathing in Skyrim")
+    BathingInSkyrim = BiS as mzinBatheQuest
+  endIf
 endFunction
 
 function UnloadSupportedMods()
   SLDefeatConfig = None
   SLDeviousDevicesLib = None
+  BathingInSkyrim = None
 endFunction
 
 bool function DependencyCheck()
@@ -109,11 +117,17 @@ function Setup(bool isCellLoad = false)
   RegisterForModEvent("PlayerTrack_End", "OnSexLabAnimationEnd")
   RegisterForModEvent(ModEventTry, "OnTryInfectActor")
 
+  RegisterForKey(BathingInSkyrim.BatheKeyCode.GetValueInt())
+	RegisterForKey(BathingInSkyrim.ShowerKeyCode.GetValueInt())
+
   DebugMessage("Running")
 endFunction
 
 function Shutdown(bool soft = false)
   DebugMessage("Shutdown")
+
+  UnregisterForKey(BathingInSkyrim.BatheKeyCode.GetValueInt())
+	UnregisterForKey(BathingInSkyrim.ShowerKeyCode.GetValueInt())
 
   UnregisterForModEvent("OnSexLabAnimationStart")
   UnregisterForModEvent("OnSexLabAnimationEnd")
@@ -472,6 +486,34 @@ event OnTryInfectActor(int threadId, Form NonPlayerForm)
   endIf
 endEvent
 
+; Registered Keys
+event OnKeyDown(int code)
+  ; Will only work if key stays the same or after cell change / load game
+  if(BathingInSkyrim && BathingInSkyrim.BatheKeyCode.GetValueInt() == code)
+    Utility.Wait(5)
+
+    if(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayBatheAnimationWithSoap))
+      Infections.Lice.LessenSeverityOnBathing(PlayerRef, withSoap = true)
+
+    elseIf(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayBatheAnimationWithoutSoap))
+      Infections.Lice.LessenSeverityOnBathing(PlayerRef)
+
+    endIf
+  endIf
+
+  if(BathingInSkyrim && BathingInSkyrim.ShowerKeyCode.GetValueInt() == code)
+    Utility.Wait(5)
+
+    if(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayShowerAnimationWithSoap))
+      Infections.Lice.LessenSeverityOnShowering(PlayerRef, withSoap = true)
+
+    elseIf(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayShowerAnimationWithoutSoap))
+      Infections.Lice.LessenSeverityOnShowering(PlayerRef)
+
+    endIf
+  endIf
+endEvent
+
 ; Utility
 function SendModEventTry(int threadId, Actor NonPlayer)
   int handle = ModEvent.Create(ModEventTry)
@@ -487,4 +529,16 @@ function SendModEventTry(int threadId, Actor NonPlayer)
   if(!ModEvent.Send(handle))
     DebugMessage("Something went wrong with the setup of this mod.")
   endIf
+endFunction
+
+bool function HasAndWaitForSpellRemoval(Actor target, Spell waitForSpell)
+  if(!target.hasSpell(waitForSpell))
+    return false
+  endIf
+
+  while(target.hasSpell(waitForSpell))
+    Utility.Wait(1)
+  endWhile
+
+  return true
 endFunction

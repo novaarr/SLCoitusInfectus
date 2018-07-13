@@ -33,9 +33,9 @@ int function UpdateSeverity()
   endIf
 
   System.DebugMessage("Lice ("+targetName+"): Last Update: " + lastUpdate)
-  System.DebugMessage("Lice ("+targetName+"):Current Time: " + currentTime)
-  System.DebugMessage("Lice ("+targetName+"):Delta: " + deltaTime)
-  System.DebugMessage("Lice ("+targetName+"):Hourly Increase: " + System.Infections.Lice.SeverityIncreasePerHour)
+  System.DebugMessage("Lice ("+targetName+"): Current Time: " + currentTime)
+  System.DebugMessage("Lice ("+targetName+"): Delta: " + deltaTime)
+  System.DebugMessage("Lice ("+targetName+"): Hourly Increase: " + System.Infections.Lice.SeverityIncreasePerHour)
 
   float severityIncrease = System.Infections.Lice.SeverityIncreasePerHour * deltaTime
   float severityRest = severityIncrease - Math.abs(severityIncrease)

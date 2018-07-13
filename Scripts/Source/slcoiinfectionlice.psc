@@ -1,23 +1,40 @@
 scriptname SLCoiInfectionLice extends SLCoiInfection hidden
 
 ; TODO:
-;   Implement: Cure (Ingame), Lessen Severity (Ingame)
+;   Implement: Cure (Ingame)
 ;   Fix: Magic Effect does not change dynamically, only on load
+;   Bathing/Showering: Add Cooldown
 
 Spell property RegenDebuffSpellRef auto
 MagicEffect property SeverityManagerRef auto
 
+; Severity: Increment
 int property SeverityIncreasePerHour auto
 int property DefaultSeverityIncreasePerHour auto
 
+; Severity: Thresholds
 GlobalVariable property UnnervingThreshold auto
 int property DefaultUnnervingThreshold auto
 
 GlobalVariable property SevereThreshold auto
 int property DefaultSevereThreshold auto
 
+; Severity: Reduction
+int property SeverityReductionBathing auto
+int property DefaultSeverityReductionBathing auto
+
+int property SeverityReductionShowering auto
+int property DefaultSeverityReductionShowering auto
+
+int property SeverityReductionSoapBonus auto
+int property DefaultSeverityReductionSoapBonus auto
+
+Message property SeverityReductionMessage auto
+
+; Severity: Faction
 Faction property SeverityFaction auto
 
+; Severity: Related Animations
 string[] property AnimationsMild auto
 string[] property AnimationsUnnerving auto
 string[] property AnimationsSevere auto
@@ -61,7 +78,37 @@ bool function IsInfected(Actor target, bool includeFakeInfection = true)
 endFunction
 
 ; Infection
+function LessenSeverityOnBathing(Actor target, bool withSoap = false)
+  int severityCurrent = target.GetFactionRank(SeverityFaction)
+  int severityReduction = SeverityReductionBathing
 
+  if(withSoap)
+    severityReduction += SeverityReductionSoapBonus
+  endIf
+
+  System.DebugMessage("Lice (" +target.GetActorBase().GetName()+"): "         \
+    + "Severity will be reduced through bathing by " + severityReduction)
+
+  target.SetFactionRank(SeverityFaction, severityCurrent - severityReduction)
+
+  SeverityReductionMessage.Show()
+endFunction
+
+function LessenSeverityOnShowering(Actor target, bool withSoap = false)
+  int severityCurrent = target.GetFactionRank(SeverityFaction)
+  int severityReduction = SeverityReductionShowering
+
+  if(withSoap)
+    severityReduction += SeverityReductionSoapBonus
+  endIf
+
+  System.DebugMessage("Lice (" +target.GetActorBase().GetName()+"): "         \
+    + "Severity will be reduced through showering by " + severityReduction)
+
+  target.SetFactionRank(SeverityFaction, severityCurrent - severityReduction)
+
+  SeverityReductionMessage.Show()
+endFunction
 
 function StartAnimation(float severity, Actor target)
   string animation = ""

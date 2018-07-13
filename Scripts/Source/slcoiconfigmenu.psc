@@ -39,6 +39,9 @@ int oidSettingsInfectionLiceSeverityIncrease = -1
 int oidSettingsInfectionLiceUnnervingThreshold = -1
 int oidSettingsInfectionLiceSevereThreshold = -1
 int oidSettingsInfectionLiceFakeNPCProbability = -1
+int oidSettingsInfectionLiceBathing = -1
+int oidSettingsInfectionLiceShowering = -1
+int oidSettingsInfectionLiceSoap = -1
 
 int oidMiscDebug = -1
 
@@ -296,6 +299,24 @@ event OnOptionSliderOpen(int option)
     SetSliderDialogInterval(0.01)
     SetSliderDialogRange(1.0, 18000.0) ; 1s to 5d
 
+  elseIf(option == oidSettingsInfectionLiceBathing)
+    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionBathing)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionBathing)
+    SetSliderDialogInterval(1)
+    SetSliderDialogRange(0, 50)
+
+  elseIf(option == oidSettingsInfectionLiceShowering)
+    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionShowering)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionShowering)
+    SetSliderDialogInterval(1)
+    SetSliderDialogRange(0, 50)
+
+  elseIf(option == oidSettingsInfectionLiceSoap)
+    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionSoapBonus)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionSoapBonus)
+    SetSliderDialogInterval(1)
+    SetSliderDialogRange(0, 25)
+
   endIf
 endEvent
 
@@ -338,6 +359,15 @@ event OnOptionSliderAccept(int option, float value)
 
   elseIf(option == oidSettingsInfectionLiceFakeNPCProbability)
     System.Infections.Lice.NonPlayerFakeInfectionProbability = value
+
+  elseIf(option == oidSettingsInfectionLiceBathing)
+    System.Infections.Lice.SeverityReductionBathing = value as int
+
+  elseIf(option == oidSettingsInfectionLiceShowering)
+    System.Infections.Lice.SeverityReductionShowering = value as int
+
+  elseIf(option == oidSettingsInfectionLiceSoap)
+    System.Infections.Lice.SeverityReductionSoapBonus = value as int
 
   elseIf(option == oidMiscCleanupInterval)
     System.Actors.CleanupInterval = value
@@ -421,6 +451,13 @@ function SetupPageStatus()
     ),                                                                        \
     "")
 
+  AddTextOption(                                                              \
+    SexLabUtil.StringIfElse(System.BathingInSkyrim != None,                   \
+      ColoredText("$STATUSSUPPORTBIS", COLOR_GREEN),                          \
+      "$STATUSSUPPORTBIS"                                                     \
+    ),                                                                        \
+    "")
+
 endFunction
 
 function SetupPageSettings()
@@ -499,7 +536,7 @@ function SetupPageSettings()
   AddEmptyOption()
   AddHeaderOption("$SettingsInfectionTypeSuccubusCurse")
 
-  int SuccubusCurseEnableSwitchFlags = OPTION_FLAG_NONE ; TODO: add hint
+  int SuccubusCurseEnableSwitchFlags = OPTION_FLAG_NONE
 
   if(!System.Infections.SuccubusCurse.Supported)
     SuccubusCurseEnableSwitchFlags = OPTION_FLAG_DISABLED
@@ -575,6 +612,27 @@ function SetupPageSettings()
       "$SettingsFakeNPCInfectionProbability",                                 \
       System.Infections.Lice.NonPlayerFakeInfectionProbability,               \
       "$SettingsFakeNPCInfectionProbabilityFormat"                            \
+    )
+
+  oidSettingsInfectionLiceBathing =                                           \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceSeverityReductionBathing",                             \
+      System.Infections.Lice.SeverityReductionBathing,                        \
+      "$SettingsSTDLiceSeverityReductionFormat"                               \
+    )
+
+  oidSettingsInfectionLiceShowering =                                         \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceSeverityReductionShowering",                           \
+      System.Infections.Lice.SeverityReductionShowering,                      \
+      "$SettingsSTDLiceSeverityReductionFormat"                               \
+    )
+
+  oidSettingsInfectionLiceSoap =                                              \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceSeverityReductionSoapBonus",                           \
+      System.Infections.Lice.SeverityReductionSoapBonus,                      \
+      "$SettingsSTDLiceSeverityReductionFormat"                               \
     )
 
 endFunction

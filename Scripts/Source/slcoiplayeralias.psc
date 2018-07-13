@@ -13,5 +13,3 @@ event OnCellLoad()
 
   System.Setup(isCellLoad = true)
 EndEvent
-
-; TODO: Move event stuff for player here
