@@ -2,8 +2,6 @@ scriptname SLCoiSystem extends Quest hidden
 
 ; Public Consts
 string property ModEventTry = "SLCoi_TryInfectActor" autoReadOnly
-string property ModEventStartup = "SLCoi_Setup" autoReadOnly
-string property ModEventShutdown = "SLCoi_Shutdown" autoReadOnly
 
 int property SceneWaitTime = 2 autoReadOnly
 int property MaxSceneWaitTime = 20 autoReadOnly
@@ -16,20 +14,20 @@ int property InfectionCauseAll = 7 autoReadOnly
 ; Options
 bool property OptDebug auto
 
-bool isActive = false
-bool property OptActive
+bool isEnabled = false
+bool property Enabled
   bool function Get()
-    return isActive
+    return isEnabled
   endFunction
 
   function Set(bool set_active)
-    if(set_active == isActive)
+    if(set_active == isEnabled)
       return
     else
-      isActive = set_active
+      isEnabled = set_active
     endIf
 
-    if(isActive)
+    if(isEnabled)
       Setup()
     else
       Shutdown()
@@ -88,7 +86,7 @@ bool function DependencyCheck()
 endFunction
 
 function Setup(bool isCellLoad = false)
-  if(!isActive)
+  if(!isEnabled)
     return
   endif
 
@@ -101,59 +99,59 @@ function Setup(bool isCellLoad = false)
   ; that the previously supported mods are still running.
   if(!isCellLoad)
     Infections.Load()
+    Actors.Load()
 
     LoadSupportedMods()
   endIf
 
+  RegisterForModEvent("PlayerTrack_Start", "OnSexLabAnimationStart")
   RegisterForModEvent("PlayerTrack_End", "OnSexLabAnimationEnd")
   RegisterForModEvent(ModEventTry, "OnTryInfectActor")
-
-  SendModEventStartup()
 
   DebugMessage("Running")
 endFunction
 
-function Shutdown()
-  DebugMessage("Shutdown (Stopping receival of external events)")
+function Shutdown(bool soft = false)
+  DebugMessage("Shutdown")
 
-  SendModEventShutdown()
-
+  UnregisterForModEvent("OnSexLabAnimationStart")
   UnregisterForModEvent("OnSexLabAnimationEnd")
   UnregisterforModEvent("OnTryInfectActor")
 
   UnloadSupportedMods()
 
   Infections.Unload()
+  Actors.Unload()
+
+  if(!soft)
+    Infections.DisableAll()
+  endIf
 endFunction
 
-function Restart()
-  if(!isActive)
+function Restart(bool soft = false)
+  if(!isEnabled)
     return
   endIf
 
-  Shutdown()
+  Shutdown(soft)
   Setup()
 endFunction
 
 function Uninstall()
-  int i = 0
-  int actor_count = Actors.Count()
+  int i = Actors.Count()
 
-  while(actor_count > i)
-    Actor target = Actors.Get(i)
+  while(i > 0)
+    Actor target = Actors.Get(i - 1)
 
     CureInfections(target)
-    Actors.Clear(target)
 
-    i += 1
+    Actors.Clear(target)
+    Actors.Unregister(target)
+
+    i -= 1
   endWhile
 
-  Actors.UnregisterAll()
-
-  CureInfections(PlayerRef)
-
-  Shutdown()
-  OptActive = false
+  Enabled = false
 endFunction
 
 ; Debug stuff
@@ -231,47 +229,54 @@ function SettingsExport()
 endFunction
 
 ; Infection Application / Curing
-bool function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor target)
+function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor targetActor)
   if(!infection.Enabled || !infection.Supported)
-    return false
+    return
   endIf
 
-  if(infectingActor != PlayerRef                                              \
-  && infection.NonPlayerFakeInfectionProbability > 0)
-
-    infection.determineFakeProbability(infectingActor)
-
-    if(OptNPCInfections                                                       \
-    && infection.hasFakeProbabilityOccurred(infectingActor)                   \
-    && !infection.isInfected(infectingActor, false))
-
-      infection.Apply(infectingActor, infectingActor)
-    endIf
-  endIf
-
-  if(Infections.isMajorInfection(infection)                                   \
-  && Infections.hasMajorInfection(target))
-    return false
+  if(infection.IsInfected(targetActor))
+    return
   endIf
 
   if(!infection.IsInfected(infectingActor))
-    return false
+    return
   endIf
 
-  if(!infection.hasProbabilityOccurred(target != PlayerRef))
-    return false
-  else
-    DebugMessage("Probability occurred for " + target.GetActorBase().GetName())
+  if(Infections.isMajorInfection(infection)                                   \
+  && Infections.hasMajorInfection(targetActor))
+    return
   endIf
 
-  if(!infection.Apply(infectingActor, target))
-    return false
+  if(infection.hasProbabilityOccurred(targetActor != PlayerRef))
+    DebugMessage("Probability occurred for " + targetActor.GetActorBase().GetName())
   endIf
 
-  DebugMessage(target.GetActorBase().GetName() + " has been infected with "   \
+  if(!infection.Apply(infectingActor, targetActor))
+    return
+  endIf
+
+  DebugMessage(targetActor.GetActorBase().GetName()                           \
+    + " has been infected with "                                              \
     + infection.GetName() + " by " + infectingActor.GetActorBase().GetName())
 
-  return true
+  if(targetActor == PlayerRef && OptNPCInfections)
+    TryInfect(infection, targetActor, infectingActor)
+  endIf
+endFunction
+
+function TryFakeInfect(SLCoiInfection infection, Actor NonPlayer)
+  if(!infection.Enabled || !infection.Supported)
+    return
+  endIf
+
+  infection.determineFakeProbability(NonPlayer)
+
+  if(OptNPCInfections                                                         \
+  && infection.hasFakeProbabilityOccurred(NonPlayer)                          \
+  && !infection.isInfected(NonPlayer, false))
+
+    infection.Apply(NonPlayer, NonPlayer)
+  endIf
 endFunction
 
 function CureInfections(Actor anActor)
@@ -377,14 +382,41 @@ function WaitForSceneEnd(int threadId)
   endWhile
 endFunction
 
-; Main
-event OnSexLabAnimationEnd(Form an_actor, int threadId)
+; SexLab Events
+event OnSexLabAnimationStart(Form anActor, int threadId)
+  sslThreadController thread = SexLab.GetController(threadId)
+
+  DebugMessage("SexLab animation has started. Determining fake infections for actors involved.")
+
+  ; Mod not running anymore
+  if(!isEnabled)
+    DebugMessage("Mod has been deactivated. Aborting.")
+    return
+  endIf
+
+  ; Cycle through invovlved actors
+  int pos = 0
+  while(pos < thread.Positions.Length)
+    Actor currentActor = thread.Positions[pos]
+
+    if(currentActor != PlayerRef)
+
+      TryFakeInfect(Infections.Lice, currentActor)
+      TryFakeInfect(Infections.SuccubusCurse, currentActor)
+
+    endIf
+
+    pos += 1
+  endWhile
+endEvent
+
+event OnSexLabAnimationEnd(Form anActor, int threadId)
   sslThreadController thread = SexLab.GetController(threadId)
 
   DebugMessage("SexLab animation has ended. Trying to infect..")
 
   ; Mod not running anymore
-  if(!isActive)
+  if(!isEnabled)
     DebugMessage("Mod has been deactivated. Aborting.")
     return
   endIf
@@ -408,6 +440,7 @@ event OnSexLabAnimationEnd(Form an_actor, int threadId)
   endWhile
 endEvent
 
+; Event to infect the Player and/or NonPLayer
 event OnTryInfectActor(int threadId, Form NonPlayerForm)
   Actor NonPlayer = NonPlayerForm as Actor
   bool wasInCombatWithTarget = false
@@ -439,32 +472,6 @@ event OnTryInfectActor(int threadId, Form NonPlayerForm)
 endEvent
 
 ; Utility
-function SendModEventStartup()
-  int handle = ModEvent.Create(ModEventStartup)
-
-  if(!handle)
-    DebugMessage("Unable to create mod event (Startup)")
-    return
-  endIf
-
-  if(!ModEvent.Send(handle))
-    DebugMessage("Something went wrong with the setup of this mod.")
-  endIf
-endFunction
-
-function SendModEventShutdown()
-  int handle = ModEvent.Create(ModEventShutdown)
-
-  if(!handle)
-    DebugMessage("Unable to create mod event (Shutdown)")
-    return
-  endIf
-
-  if(!ModEvent.Send(handle))
-    DebugMessage("Something went wrong with the setup of this mod.")
-  endIf
-endFunction
-
 function SendModEventTry(int threadId, Actor NonPlayer)
   int handle = ModEvent.Create(ModEventTry)
 
