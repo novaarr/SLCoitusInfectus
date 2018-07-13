@@ -47,6 +47,27 @@ bool function InfectPlayer(Actor infectingActor)
   return InfectPlayerVanilla(infectingActor)
 endFunction
 
+bool function CurePlayer()
+  if(MTSupport)
+    return CurePlayerMT()
+  endIf
+
+  return CurePlayerVanilla()
+endFunction
+
+bool function IsInfected(Actor anActor, bool includeFakeInfection = true)
+  if(parent.IsInfected(anActor, includeFakeInfection))
+    return true
+  endIf
+
+  if(MTSupport)
+    return IsInfectedMT(anActor)
+  endIf
+
+  return IsInfectedVanilla(anActor)
+endFunction
+
+; Vanilla
 bool function InfectPlayerVanilla(Actor infectingActor)
   QuestCompanions.PlayerIsWerewolfVirgin = false
   QuestCompanions.PlayerOriginalRace = System.PlayerRef.GetRace()
@@ -57,35 +78,6 @@ bool function InfectPlayerVanilla(Actor infectingActor)
   System.PlayerRef.AddSpell(SpellWerewolfImmunityRef, false)
 
   System.PlayerRef.DoCombatSpellApply(SpellBeastFormRef, System.PlayerRef)
-endFunction
-
-bool function InfectPlayerMT(Actor infectingActor)
-  string BeastName = ""
-
-  if(IsWereBear(infectingActor))
-    BeastName = "Werebear"
-    MTPlayerFramework.InfectWereBear()
-
-  else
-    BeastName = "Werewolf"
-    MTPlayerFramework.InfectWerewolf()
-
-  endIf
-
-  System.DebugMessage("Player is becoming a " + BeastName)
-
-  System.PlayerRef.DoCombatSpellApply(MTPlayerFramework.WerewolfChange,     \
-                                      System.PlayerRef)
-
-  return true
-endFunction
-
-bool function CurePlayer()
-  if(MTSupport)
-    return CurePlayerMT()
-  endIf
-
-  return CurePlayerVanilla()
 endFunction
 
 bool function CurePlayerVanilla()
@@ -99,23 +91,6 @@ bool function CurePlayerVanilla()
   endIf
 
   return false
-endFunction
-
-bool function CurePlayerMT()
-  MTPlayerFramework.Cure()
-  CurePlayerVanilla()
-endFunction
-
-bool function IsInfected(Actor anActor, bool fakeInfection = true)
-  if(parent.IsInfected(anActor, fakeInfection))
-    return true
-  endIf
-
-  if(MTSupport)
-    return IsInfectedMT(anActor)
-  endIf
-
-  return IsInfectedVanilla(anActor)
 endFunction
 
 bool function IsInfectedVanilla(Actor anActor)
@@ -142,6 +117,33 @@ bool function IsInfectedVanilla(Actor anActor)
   return false
 endFunction
 
+; MT
+bool function InfectPlayerMT(Actor infectingActor)
+  string BeastName = ""
+
+  if(IsWereBear(infectingActor))
+    BeastName = "Werebear"
+    MTPlayerFramework.InfectWereBear()
+
+  else
+    BeastName = "Werewolf"
+    MTPlayerFramework.InfectWerewolf()
+
+  endIf
+
+  System.DebugMessage("Player is becoming a " + BeastName)
+
+  System.PlayerRef.DoCombatSpellApply(MTPlayerFramework.WerewolfChange,     \
+                                      System.PlayerRef)
+
+  return true
+endFunction
+
+bool function CurePlayerMT()
+  MTPlayerFramework.Cure()
+  CurePlayerVanilla()
+endFunction
+
 bool function IsInfectedMT(Actor anActor)
   if(IsInfectedVanilla(anActor))
     return true
@@ -150,11 +152,6 @@ bool function IsInfectedMT(Actor anActor)
   return IsWereBear(anActor)
 endFunction
 
-bool function CanInfect(Actor target)
-  return parent.CanInfect(target)
-endFunction
-
-; MT
 bool function IsWereBear(Actor anActor)
   if(anActor != System.PlayerRef                                              \
   && anActor.GetBaseObject().GetName() == "Werebear")

@@ -1,7 +1,5 @@
 scriptname SLCoiInfectionRegistry extends Quest hidden
 
-SLCoiSystem property System auto
-
 ; Race changing - Major
 SLCoiInfectionVampirism property Vampirism auto
 SLCoiInfectionLycanthropy property Lycanthropy auto
@@ -10,7 +8,31 @@ SLCoiInfectionSuccubusCurse property SuccubusCurse auto
 ; Common STDs
 SLCoiInfectionLice property Lice auto
 
-; Utility
+; Registry
+function Load()
+  Vampirism.Load()
+  Lycanthropy.Load()
+  SuccubusCurse.Load()
+
+  Lice.Load()
+endFunction
+
+function Unload()
+  Vampirism.Unload()
+  Lycanthropy.Unload()
+  SuccubusCurse.Unload()
+
+  Lice.Unload()
+endFunction
+
+function DisableAll()
+  Vampirism.Enabled = false
+  Lycanthropy.Enabled = false
+  SuccubusCurse.Enabled = false
+
+  Lice.Enabled = false
+endFunction
+
 bool function IsMajorInfection(SLCoiInfection infection)
   if(infection == Vampirism)
     return true
@@ -41,21 +63,4 @@ bool function hasMajorInfection(Actor target)
   endIf
 
   return false
-endFunction
-
-; Maintenance
-function Load()
-  System.DebugMessage("Loading up infections")
-
-  Vampirism.Load()
-  Lycanthropy.Load()
-  SuccubusCurse.Load()
-endFunction
-
-function Unload()
-  System.DebugMessage("Unloading infections")
-
-  Vampirism.Unload()
-  Lycanthropy.Unload()
-  SuccubusCurse.Unload()
 endFunction

@@ -51,8 +51,8 @@ bool function CurePlayer()
   return true
 endFunction
 
-bool function IsInfected(Actor anActor, bool fakeInfection = true)
-  if(parent.IsInfected(anActor, fakeInfection))
+bool function IsInfected(Actor anActor, bool includeFakeInfection = true)
+  if(parent.IsInfected(anActor, includeFakeInfection))
     return true
   endIf
 
@@ -70,8 +70,4 @@ bool function IsInfected(Actor anActor, bool fakeInfection = true)
   endIf
 
   return false
-endFunction
-
-bool function CanInfect(Actor target)
-  return parent.CanInfect(target)
 endFunction

@@ -55,23 +55,15 @@ bool function CurePlayer()
   return true
 endFunction
 
-bool function IsInfected(Actor anActor, bool fakeInfection = true)
+bool function IsInfected(Actor anActor, bool includeFakeInfection = true)
   if(!PSQSupport)
     System.DebugMessage("PSQ: Unable to determine if Actor is Succubus, PSQ is not loaded.")
     return false
   endIf
 
-  if(parent.IsInfected(anActor, fakeInfection))
+  if(parent.IsInfected(anActor, includeFakeInfection))
     return true
   endIf
 
   return (PSQScript.PlayerIsSuccubus.GetValue() == 1)
-endFunction
-
-bool function CanInfect(Actor target)
-  if(!PSQSupport)
-    return false
-  endIf
-
-  return parent.CanInfect(target)
 endFunction
