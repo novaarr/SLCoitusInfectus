@@ -1,7 +1,5 @@
 scriptname SLCoiConfigMenu extends SKI_ConfigBase hidden
 
-; TODO: add collapsable menus
-
 SLCoiSystem property System auto
 
 ; CONSTS
@@ -51,6 +49,8 @@ Actor[] tempNearbyActors
 int oidMiscImport = -1
 int oidMiscExport = -1
 
+int oidMiscCleanupInterval = -1
+
 int oidMiscUninstall = -1
 
 ; Version
@@ -71,8 +71,9 @@ event OnVersionUpdate(int version)
   endIf
 endEvent
 
-event OnPageReset(string a_page) ; if mod not active, show message instead of page
-  if((a_page != "$PageStatus" || a_page != "") && !System.OptActive)
+event OnPageReset(string a_page)
+  ; if mod not active, show message instead of page
+  if((a_page != "$PageStatus" && a_page != "") && !System.Enabled)
     ShowMessage("$ModIsNotActivated")
 
     SetupPageStatus()
@@ -106,12 +107,44 @@ event OnOptionHighlight(int option)
   elseIf(option == oidSettingsInfectionLiceSeverityIncrease)
     SetInfoText("$SettingsSTDLiceSeverityIncreasePerHourHint")
 
+  elseIf(option == oidMiscCleanupInterval)
+    SetInfoText("$MiscCleanupIntervalHint")
+
   endIf
 endEvent
 
 event OnOptionSelect(int option)
+  ; warnings
+  if( (option == oidSettingsInfectionTypeVampirismEnabled                     \
+  &&  System.Infections.Vampirism.Enabled)                                    \
+                                                                              \
+  ||  (option == oidSettingsInfectionTypeLycanthropyEnabled                   \
+  &&  System.Infections.Lycanthropy.Enabled)                                  \
+                                                                              \
+  ||  (option == oidSettingsInfectionTypeSuccubusCurseEnabled                 \
+  &&  System.Infections.SuccubusCurse.Enabled)                                \
+                                                                              \
+  ||  (option == oidSettingsInfectionTypeLiceEnabled                          \
+  &&  System.Infections.Lice.Enabled))
+
+    if(false == ShowMessage("$SettingsInfectionDisableWarning"))
+      return
+    endIf
+
+  elseIf(option == oidStatusActive && System.Enabled)
+    if(false == ShowMessage("$StatusModDisableWarning"))
+      return
+    endIf
+
+  elseIf(option == oidMiscUninstall)
+    if(false == ShowMessage("$MiscUninstallWarning"))
+      return
+    endIf
+  endIf
+
+  ; do appropriate actions
   if(option == oidStatusActive)
-    System.OptActive = !System.OptActive
+    System.Enabled = !System.Enabled
 
   elseIf(option == oidSettingsNPCInfections)
     System.OptNPCInfections = !System.OptNPCInfections
@@ -257,6 +290,12 @@ event OnOptionSliderOpen(int option)
     SetSliderDialogInterval(0.001)
     SetSliderDialogRange(0.0, 1.0)
 
+  elseIf(option == oidMiscCleanupInterval)
+    SetSliderDialogStartValue(System.Actors.CleanupInterval)
+    SetSliderDialogDefaultValue(System.Actors.DefaultCleanupInterval)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(1.0, 18000.0) ; 1s to 5d
+
   endIf
 endEvent
 
@@ -299,6 +338,9 @@ event OnOptionSliderAccept(int option, float value)
 
   elseIf(option == oidSettingsInfectionLiceFakeNPCProbability)
     System.Infections.Lice.NonPlayerFakeInfectionProbability = value
+
+  elseIf(option == oidMiscCleanupInterval)
+    System.Actors.CleanupInterval = value
 
   endIf
 
@@ -343,7 +385,7 @@ function SetupPageStatus()
   oidStatusActive =                                                           \
     AddTextOption(                                                            \
       "$StatusMod",                                                           \
-      SexLabUtil.StringIfElse(System.OptActive,                               \
+      SexLabUtil.StringIfElse(System.Enabled,                               \
           ColoredText("$StatusActive", COLOR_GREEN),                          \
           ColoredText("$StatusInactive", COLOR_RED)                           \
       )                                                                       \
@@ -548,6 +590,15 @@ function SetupPageMisc()
   AddHeaderOption("$MiscSettings")
   oidMiscImport = AddTextOption("$MiscSettingsImport", "")
   oidMiscExport = AddTextOption("$MiscSettingsExport", "")
+
+  AddEmptyOption()
+  oidMiscCleanupInterval =                                                    \
+    AddSliderOption(                                                          \
+      "$MiscCleanupInterval",                                                 \
+      System.Actors.CleanupInterval,                                          \
+      "$MiscCleanupIntervalFormat"                                            \
+    )
+
 
   AddEmptyOption()
   oidMiscUninstall = AddTextOption("$MiscUninstall", "")
