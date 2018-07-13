@@ -1,10 +1,11 @@
 scriptname SLCoiInfectionLice extends SLCoiInfection hidden
 
-; TODO: Implement: Cure (Ingame), Lessen Severity (Ingame)
-Spell property RegenDebuffSpellRef auto
+; TODO:
+;   Implement: Cure (Ingame), Lessen Severity (Ingame)
+;   Fix: Magic Effect does not change dynamically, only on load
 
-MagicEffect property MagickaRegenDebuffRef auto
-MagicEffect property StaminaRegenDebuffRef auto
+Spell property RegenDebuffSpellRef auto
+MagicEffect property SeverityManagerRef auto
 
 int property SeverityIncreasePerHour auto
 int property DefaultSeverityIncreasePerHour auto
@@ -33,6 +34,7 @@ endFunction
 bool function InfectNonPlayer(Actor infectingActor, Actor target)
   target.AddSpell(RegenDebuffSpellRef, false)
   target.AddToFaction(SeverityFaction)
+  target.SetFactionRank(SeverityFaction, 0)
 
   return IsInfected(target)
 endFunction
@@ -45,44 +47,21 @@ bool function CureNonPlayer(Actor target)
   target.DispelSpell(RegenDebuffSpellRef)
   target.RemoveSpell(RegenDebuffSpellRef)
 
+  target.RemoveFromFaction(SeverityFaction)
+
   return true
 endFunction
 
-bool function IsInfected(Actor target, bool fakeInfection = true)
-  if(parent.IsInfected(target, fakeInfection))
+bool function IsInfected(Actor target, bool includeFakeInfection = true)
+  if(parent.IsInfected(target, includeFakeInfection))
     return true
   endIf
 
-  return  target.HasMagicEffect(MagickaRegenDebuffRef)                        \
-  &&      target.HasMagicEffect(StaminaRegenDebuffRef)
+  return  target.HasMagicEffect(SeverityManagerRef)
 endFunction
 
 ; Infection
-float function UpdateSeverity(Actor target, float lastUpdate)
-  float currentTime = Utility.GetCurrentGameTime() * 24.0
-  float deltaTime = currentTime - lastUpdate
 
-  System.DebugMessage("Last Update: " + lastUpdate)
-  System.DebugMessage("Current Time: " + currentTime)
-  System.DebugMessage("Delta: " + deltaTime)
-  System.DebugMessage("Hourly Increase: " + SeverityIncreasePerHour)
-
-  if(deltaTime >= 0.0 && deltaTime < 1.0)
-    return severity
-  endIf
-
-  if(severity == 1.0)
-    return 1.0
-  endIf
-
-  severity += SeverityIncreasePerHour * (deltaTime as int)
-
-  if(severity > 1.0)
-    severity = 1.0
-  endIf
-
-  return severity
-endFunction
 
 function StartAnimation(float severity, Actor target)
   string animation = ""
