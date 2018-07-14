@@ -43,7 +43,7 @@ Currently only works with LE since Moonlight Tales SE seems to be passive and th
 - ~Infection type selection (future)~
 - NPC infections, and infections only. I won't script NPCs behaivor
 - Adding regular STDs
-  - In Progress: Lice (Missing: In-game items to lessen severity or cure it completely, animations)
+  - In Progress: Lice (Missing: animations)
 
 
 
