@@ -39,6 +39,10 @@ function Unregister(Actor target)
   endIf
 endFunction
 
+function Remove(int pos)
+  StorageUtil.FormListRemoveAt(self as Form, StorageActorListKey, pos)
+endFunction
+
 bool function IsRegistered(Actor target)
   return StorageUtil.FormListHas(self as Form, StorageActorListKey, target as Form)
 endFunction
@@ -116,7 +120,10 @@ function Cleanup()
 
     Actor registeredActor = Get(pos)
 
-    if(registeredActor && registeredActor.IsDead())
+    if(!registeredActor)
+      Remove(pos)
+
+    elseIf(registeredActor && registeredActor.IsDead())
       Clear(registeredActor)
       Unregister(registeredActor)
     endIf
