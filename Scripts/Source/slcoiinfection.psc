@@ -43,10 +43,12 @@ function Enable()
   while(pos < System.Actors.Count())
     Actor registeredActor = System.Actors.Get(pos)
 
-    if(!IsInfected(registeredActor)                                           \
-    && System.Actors.IsRegisteredInfection(registeredActor, self))
-      Apply(registeredActor, registeredActor)
-    endIf
+    if(registeredActor != None) ; ??
+      if(!IsInfected(registeredActor)                                           \
+      && System.Actors.IsRegisteredInfection(registeredActor, self))
+        Apply(registeredActor, registeredActor)
+      endIf
+    endif
 
     pos += 1
   endwhile
@@ -57,7 +59,9 @@ function Disable()
   while(pos < System.Actors.Count())
     Actor registeredActor = System.Actors.Get(pos)
 
-    Cure(registeredActor, unregisterActor = false)
+    if(registeredActor != None) ; ??
+      Cure(registeredActor, unregisterActor = false)
+    endIf
 
     pos += 1
   endwhile
@@ -169,15 +173,18 @@ function determineFakeProbability(Actor target)
   endIf
 
   if(NonPlayerFakeInfectionProbability <= 0)
+    ;System.DebugMessage("Fake infections for this infection disabled")
     return
   endIf
 
   if(System.Actors.wasFakeInfectedSet(target, self))
+    ;System.DebugMessage("Fake infeciton was already set")
     return
   endIf
 
   if(System.Infections.isMajorInfection(self)                                 \
   && System.Infections.hasMajorInfection(target))
+    ;System.DebugMessage("Already has a major infection")
     return
   endIf
 
@@ -192,6 +199,7 @@ function determineFakeProbability(Actor target)
     + "is infected with " + GetName() + " (fake)")
 
   else
+    ;System.DebugMessage("Fake infection failed")
     System.Actors.SetFakeInfected(target, self, false)
   endIf
 endFunction
