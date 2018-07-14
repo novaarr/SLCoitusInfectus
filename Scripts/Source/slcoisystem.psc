@@ -231,6 +231,7 @@ function SettingsImport()
   Infections.Lice.SeverityReductionBathingMultiplier = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionBathingMultiplier")
   Infections.Lice.SeverityReductionShoweringMultiplier = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionShoweringMultiplier")
   Infections.Lice.SeverityReductionSoapBonusMultiplier = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionSoapBonusMultiplier")
+  Infections.Lice.ContainerContainsCureProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.ContainerContainsCureProbability")
 
   DebugMessage("Settings imported")
 endFunction
@@ -265,6 +266,7 @@ function SettingsExport()
   JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionBathingMultiplier", Infections.Lice.SeverityReductionBathingMultiplier)
   JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionShoweringMultiplier", Infections.Lice.SeverityReductionShoweringMultiplier)
   JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionSoapBonusMultiplier", Infections.Lice.SeverityReductionSoapBonusMultiplier)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.ContainerContainsCureProbability", Infections.Lice.ContainerContainsCureProbability)
 
   if(JsonUtil.Save(SettingsFile))
     DebugMessage("Settings exported")
