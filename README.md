@@ -12,30 +12,30 @@ Currently there is support for English, German and Russian. If you translate it 
 
 ### Major Infections
 
-##### Lycanthropy
+#### Lycanthropy
   Currently not supported for NPCs
 
-  - Moonlight Tales Support
-    - Allows infection of Werebears
+  Moonlight Tales Support
+  - Allows infection of Werebears
 
-##### Succubus Curse
+#### Succubus Curse
   No NPC support possible
 
-  - Player Succubus Quest Support
-    - Required for this infection to work
+  Player Succubus Quest Support
+  - Required for this infection to work
 
-##### Vampirism
+#### Vampirism
   Currently not supported for NPCs
 
 ### Regular Infections
 
-##### Lice
+#### Lice
   - Will reduce Stamina and Magicka regeneration rate by 5% / 10% / 15%, depending on the severity, which will increase over time
   - You can cure yourself through a potion obtained from containers. The potions will be added randomly (You can set the probability for that in the MCM menu)
   - NPC infection is supported (TODO: Lessen of severity for NPCs)
 
-  - Bathing in Skyrim Support
-    - The severity can be reduced by cleaning the character ()
+  Bathing in Skyrim Support
+   - The severity can be reduced by cleaning the character ()
 
 ## Requirements
 
