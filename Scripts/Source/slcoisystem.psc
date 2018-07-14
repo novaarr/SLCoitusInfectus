@@ -117,7 +117,9 @@ function Setup(bool isCellLoad = false)
   ; that the previously supported mods are still running.
   if(!isCellLoad)
     Infections.Load()
+
     Actors.Load()
+    Actors.Cleanup()
 
     LoadSupportedMods()
   endIf
@@ -289,6 +291,8 @@ function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor targetA
 
   if(Infections.isMajorInfection(infection)                                   \
   && Infections.hasMajorInfection(targetActor))
+    DebugMessage(targetActor.GetActorBase().GetName() + " already infected with"\
+    + " a major infection (tried infection "+infection.GetName()+").")
     return
   endIf
 
