@@ -49,6 +49,8 @@ sslThreadSlots property SexLabThreadSlots auto
 SLCoiInfectionRegistry property Infections auto
 SLCoiActorRegistry property Actors auto
 
+Perk property ContainerWatchdog auto
+
 string SettingsFile = "slcoitusinfectus-config.json"
 
 ; Support for mods starting scenes
@@ -105,6 +107,7 @@ function Setup(bool isCellLoad = false)
     return
   endif
 
+  ; check for dependencies
   if(!DependencyCheck())
     DebugMessage("ERROR: Dependencies not found. Make sure to meet the requirements!")
     return
@@ -119,10 +122,15 @@ function Setup(bool isCellLoad = false)
     LoadSupportedMods()
   endIf
 
+  ; Container watchdog
+  PlayerRef.AddPerk(ContainerWatchdog)
+
+  ; Mod events
   RegisterForModEvent("PlayerTrack_Start", "OnSexLabAnimationStart")
   RegisterForModEvent("PlayerTrack_End", "OnSexLabAnimationEnd")
   RegisterForModEvent(ModEventTry, "OnTryInfectActor")
 
+  ; Key events
   RegisterForKey(BiSBathCode)
 	RegisterForKey(BiSShowerCode)
 
@@ -132,18 +140,26 @@ endFunction
 function Shutdown(bool soft = false)
   DebugMessage("Shutdown")
 
+  ; Container watchdog
+  PlayerRef.RemovePerk(ContainerWatchdog)
+
+  ; Key events
   UnregisterForKey(BiSBathCode)
 	UnregisterForKey(BiSShowerCode)
 
+  ; Mod events
   UnregisterForModEvent("OnSexLabAnimationStart")
   UnregisterForModEvent("OnSexLabAnimationEnd")
   UnregisterforModEvent("OnTryInfectActor")
 
+  ; Support
   UnloadSupportedMods()
 
+  ; Registry
   Infections.Unload()
   Actors.Unload()
 
+  ; Disable infections if hard shutdown
   if(!soft)
     Infections.DisableAll()
   endIf

@@ -42,6 +42,7 @@ int oidSettingsInfectionLiceFakeNPCProbability = -1
 int oidSettingsInfectionLiceBathing = -1
 int oidSettingsInfectionLiceShowering = -1
 int oidSettingsInfectionLiceSoap = -1
+int oidSettingsInfectionLiceContainerProbability = -1
 
 int oidMiscDebug = -1
 
@@ -117,6 +118,10 @@ event OnOptionHighlight(int option)
   ||    option == oidSettingsInfectionLiceShowering                           \
   ||    option == oidSettingsInfectionLiceSoap)
     SetInfoText("$SettingsSTDLiceSeverityReductionHint")
+
+  elseIf(option == oidSettingsInfectionLiceContainerProbability)
+    SetInfoText("$$SettingsSTDLiceContainerContainsCureHint")
+
 
   endIf
 endEvent
@@ -322,31 +327,41 @@ event OnOptionSliderOpen(int option)
     SetSliderDialogInterval(0.01)
     SetSliderDialogRange(1.0, 3.0)
 
+  elseIf(option == oidSettingsInfectionLiceContainerProbability)
+    SetSliderDialogStartValue(System.Infections.Lice.ContainerContainsCureProbability)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultContainerContainsCureProbability)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(0.0, 1.0)
+
   endIf
 endEvent
 
 event OnOptionSliderAccept(int option, float value)
-  if(option == oidSettingsPSQNPCInfectionProbability)
-    System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability = value
-
-  elseIf(option == oidSettingsInfectionLycanthropyProbabilityPC)
+  ; Lycanthropy
+  if(option == oidSettingsInfectionLycanthropyProbabilityPC)
     System.Infections.Lycanthropy.PlayerProbability = value
 
   elseIf(option == oidSettingsInfectionLycanthropyProbabilityNPC)
     System.Infections.Lycanthropy.NonPlayerProbability = value
 
+  ; Vampirism
   elseIf(option == oidSettingsInfectionVampirismProbabilityPC)
     System.Infections.Vampirism.PlayerProbability = value
 
   elseIf(option == oidSettingsInfectionVampirismProbabilityNPC)
     System.Infections.Vampirism.NonPlayerProbability = value
 
+  ; SuccubusCurse
   elseIf(option == oidSettingsInfectionSuccubusCurseProbabilityPC)
     System.Infections.SuccubusCurse.PlayerProbability = value
 
   elseIf(option == oidSettingsInfectionSuccubusCurseProbabilityNPC)
     System.Infections.SuccubusCurse.NonPlayerProbability = value
 
+  elseIf(option == oidSettingsPSQNPCInfectionProbability)
+    System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability = value
+
+  ; Lice
   elseIf(option == oidSettingsInfectionLiceProbabilityPC)
     System.Infections.Lice.PlayerProbability = value
 
@@ -374,6 +389,10 @@ event OnOptionSliderAccept(int option, float value)
   elseIf(option == oidSettingsInfectionLiceSoap)
     System.Infections.Lice.SeverityReductionSoapBonusMultiplier = value
 
+  elseIf(option == oidSettingsInfectionLiceContainerProbability)
+    System.Infections.Lice.ContainerContainsCureProbability = value
+
+  ; Misc
   elseIf(option == oidMiscCleanupInterval)
     System.Actors.CleanupInterval = value
 
@@ -638,6 +657,13 @@ function SetupPageSettings()
       "$SettingsSTDLiceSeverityReductionSoapBonus",                           \
       System.Infections.Lice.SeverityReductionSoapBonusMultiplier,            \
       "$SettingsSTDLiceSeverityReductionFormat"                               \
+    )
+
+  oidSettingsInfectionLiceContainerProbability =                              \
+    AddSliderOption(                                                          \
+      "$SettingsSTDLiceContainerContainsCureProbability",                     \
+      System.Infections.Lice.ContainerContainsCureProbability,                \
+      "$SettingsSTDLiceContainerContainsCureFormat"                           \
     )
 
 endFunction

@@ -32,6 +32,7 @@ float property NonPlayerFakeInfectionProbability auto
 float property DefaultNonPlayerFakeInfectionProbability auto
 
 Message property InfectionMessageRef auto
+Message property CureMessageRef auto
 
 string function GetName()
   return "" ; Infection Name (Unique!)
@@ -119,6 +120,10 @@ bool function Cure(Actor target, bool unregisterActor = true)
       if(target != System.PlayerRef)
         System.Actors.UnsetFakeInfection(target, self)
       endIf
+    endIf
+
+    if(target == System.PlayerRef && CureMessageRef)
+      CureMessageRef.Show()
     endIf
 
     System.DebugMessage(target.GetActorBase().GetName() + " has been cured of " + GetName())

@@ -1,8 +1,7 @@
 scriptname SLCoiInfectionLice extends SLCoiInfection hidden
 
 ; TODO:
-;   Implement: Cure
-;   Maybe: Add messages each time severity is increased
+;   Notification that severity has been increased
 
 Spell property SeverityManagerSpellRef auto
 
@@ -39,6 +38,13 @@ Faction property SeverityFaction auto
 ; Severity: Cooldown
 Spell property SeverityReductionCooldownSpellRef auto
 MagicEffect property SeverityReductionCooldownRef auto
+
+; Container
+float property ContainerContainsCureProbability auto
+float property DefaultContainerContainsCureProbability auto
+
+; Items
+Potion property CurePotionRef auto
 
 ; Severity: Related Animations
 string[] property AnimationsMild auto
@@ -192,4 +198,20 @@ function StartAnimation(Actor target, float severity)
 
   ; well, go ahead
   Debug.SendAnimationEvent(target, animation)
+endFunction
+
+function HandleContainerActivation(ObjectReference activationContainer)
+  if(ContainerContainsCureProbability <= 0)
+    return
+  endIf
+
+  float random = Utility.RandomFloat()
+
+  if(random > ContainerContainsCureProbability)
+    return
+  endIf
+
+  activationContainer.AddItem(CurePotionRef, 1, true)
+
+  System.DebugMessage("Lice: Added cure to container")
 endFunction
