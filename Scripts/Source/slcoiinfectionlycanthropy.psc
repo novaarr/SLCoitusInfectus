@@ -100,7 +100,7 @@ bool function IsInfectedVanilla(Actor anActor)
   endIf
 
   if(anActor != System.PlayerRef                                              \
-  && anActor.GetBaseObject().GetName() == "Werewolf")
+  && anActor.GetActorBase().GetName() == "Werewolf")
     return true
   endIf
 
