@@ -334,19 +334,21 @@ function CureInfections(Actor anActor)
   if(Infections.Vampirism.IsInfected(anActor))
     DebugMessage("Trying to cure actor of Vampirism")
     Infections.Vampirism.Cure(anActor)
+  endIf
 
-  elseIf(Infections.Lycanthropy.IsInfected(anActor))
+  if(Infections.Lycanthropy.IsInfected(anActor))
     DebugMessage("Trying to cure actor of Lycanthropy")
     Infections.Lycanthropy.Cure(anActor)
+  endIf
 
-  elseIf(Infections.SuccubusCurse.IsInfected(anActor))
+  if(Infections.SuccubusCurse.IsInfected(anActor))
     DebugMessage("Trying to cure actor of his/her Succubus curse")
     Infections.SuccubusCurse.Cure(anActor)
+  endIf
 
-  elseIf(Infections.Lice.IsInfected(anActor))
+  if(Infections.Lice.IsInfected(anActor))
     DebugMessage("Trying to cure actor of lice")
     Infections.Lice.Cure(anActor)
-
   endIf
 endFunction
 
