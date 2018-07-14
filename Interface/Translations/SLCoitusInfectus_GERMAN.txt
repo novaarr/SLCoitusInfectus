@@ -1,45 +1,101 @@
-$ModIsNotActivated	Um fortzufahren muss die Mod aktiviert werden
+$ModIsNotActivated	Mod muss aktiviert werden um fortzufahren
 
 $PageStatus	Status
 
 $StatusMod	Mod ist aktiv
 $STATUSACTIVE	Ja
 $STATUSINACTIVE	Nein
+$StatusModDisableWarning	Deaktivierung der Mod führt zur Deaktivierung aller Infektionen und daher ihrer Heilung, dabei kann Fortschritt verloren gehen. Möchtest Du fortfahren?
+
+$StatusDependencies	Abhängigkeiten
+$STATUSDEPENDENCYPAPYRUSUTIL	PapyrusUtil
+
+$StatusSupportedMods	Unterstützte Mods
+$STATUSSUPPORTMT	Moonlight Tales
+$STATUSSUPPORTPSQ	Player Succubus Quest
+$STATUSSUPPORTBIS	Bathing in Skyrim
 
 
 $PageSettings	Einstellungen
 
 $SettingsNPCInfections	NPC Infektionen
-$SettingsNPCInfectionsHint	Erlaube NPCs durch den Spieler infiziert zu werden.\nHinweis: Das führt dazu, dass jede sexuelle Begegnung mit dem Spieler verfolgt wird.
+$SettingsNPCInfectionsHint	Erlaubt es NPCs durch den Spieler infiziert zu werden
 
-$SettingsInfectionTypes	Infizierungsarten
-$SettingsInfectionTypeLycanthropy	Lykanthropie
-$SettingsInfectionTypeVampirism	Vampirismus
-$SettingsInfectionTypeSuccubusCurse	Succubus Fluch
-$SettingsInfectionTypeSuccubusCurseHint	Funktioniert nur, wenn eine unterstützte Mod aktiv ist (derzeit nur PSQ)
+$SettingsInfectionTypeLycanthropy	Lykanthropie Einstellungen
+$SettingsInfectionTypeVampirism	Vampirismus Einstellungen
+$SettingsInfectionTypeSuccubusCurse	Succubus Fluch Einstellungen
+$SettingsInfectionTypeSuccubusCurseHint	Funktioniert nur, wenn PSQ eingebunden ist
 
-$SettingsInfectionProbability	Infektionswahrscheinlichkeit
+$SettingsInfectionEnabled	Aktivierung
+$SettingsInfectionDisableWarning	Bist Du sicher, dass Du die Infektion deaktivieren möchtest? Eine Deaktivierung führ zur Heilung aller infizierten Charaktere und Fortschritt könnte verloren gehen.
+$SettingsInfectionProbabilityPC	PC Infektionswahrscheinlichkeit
+$SettingsInfectionProbabilityNPC	NPC Infektionswahrscheinlichkeit
 $SettingsInfectionProbabilityFormat	{3}
 
-$SettingsInfectionCauses	Infektionsgründe
-$SettingsInfectionCauseVaginal	vaginaler Sex
-$SettingsInfectionCauseAnal	Analsex
-$SettingsInfectionCauseOral	Oralsex
+$SettingsInfectionCauses	Infektionsursachen
+$SettingsInfectionCauseVaginal	Vaginal
+$SettingsInfectionCauseAnal	Anal
+$SettingsInfectionCauseOral	Oral
 
-$SettingsPSQ	PSQ Einstellungen
-$SettingsPSQNPCInfectionProbability	NPC Wahrscheinlichkeit
-$SettingsPSQNPCInfectionProbabilityFormat	{3}
-$SettingsPSQNPCInfectionProbabilityHint	Wahrscheinlichkeit das der NPC als Succubus behandelt wird, auch wenn er/sie keine/-r ist
+$SettingsFakeNPCInfectionProbability	NPC Scheininfektionswahrscheinlichkeit
+$SettingsFakeNPCInfectionProbabilityFormat	{3}
+$SettingsFakeNPCInfectionProbabilityHint	Wahrscheinlichhkeit mit der ein NPC als infiziert berücksichtigt wird, auch wenn die Infektion der NPCs deaktiviert ist.
 
+
+$SettingsSTDLiceUnnervingThreshold	Ausprägungsschwelle: Nervig
+$SettingsSTDLiceSevereThreshold	Ausprägungsschwelle: Heftig
+$SettingsSTDLiceThresholdFormat	{1}
+
+$SettingsSTDLiceSeverityIncreasePerHour	Ausprägung pro Stunde
+$SettingsSTDLiceSeverityIncreasePerHourHint	Ausprägung steigt jede Spiel-Stunde
+$SettingsSTDLiceSeverityIncreasePerHourFormat	{1}
+
+$SettingsSTDLiceSeverityReductionBathing	Minderungs-Multiplikator: Baden
+$SettingsSTDLiceSeverityReductionShowering	Minderungs-Multiplikator: Duschen
+$SettingsSTDLiceSeverityReductionSoapBonus	Minderungs-Multiplikator: Bonus: Seife
+$SettingsSTDLiceSeverityReductionFormat	{3}
+$SettingsSTDLiceSeverityReductionHint	Die Minderung wird folgendermaßen berechnet:\nMinderungsmultiplikator = (Ausprägung pro Stunde) * (Seifenbonus Multiplikator * Minderungs-Multiplikator der Aktion)
+
+$SettingsSTDLiceContainerContainsCureProbability	Behälterwahrscheinlichkeit
+$SettingsSTDLiceContainerContainsCureHint	Wahrscheinlichkeit, dass sich ein Heilungsgegenstand in einer Kiste befindet
+$SettingsSTDLiceContainerContainsCureFormat	{2}
 
 $PageMisc	Sonstiges
 
-$MiscCureMe	Heil mich!
-$MiscCureDone	Du wirst von deinen Erkrankungen geheilt, sobald Du wieder im Spiel bist
+$MiscCureMe	Heile mich!
+$MiscCureMessage	Du wirst von deinen Infektionen geheilt, sobald Du wieder in's Spiel gehst
+
+$MiscCureNearby	Heile jemanden in der Nähe
 
 $MiscDebug	Papyrus Debug Logging
 
-$MiscSupport	Unterstützte Mods
-$MISCSUPPORTMT	Moonlight Tales
-$MISCSUPPORTPSQ	Player Succubus Quest
+$MiscSettings	Einstellungen
+$MiscSettingsImport	Import
+$MiscSettingsExport	Export
 
+$MiscCleanupInterval	Aufräuminterval
+$MiscCleanupIntervalFormat	{2}s
+$MiscCleanupIntervalHint	Entfernt tote Charaktere von der internen Datenbank.\nHinweis: Jede Stunde ist mehr als ausreichend
+
+$MiscUninstall	Deinstallieren
+$MiscUninstallWarning	Deinstallieren der Mod wird jeden registrierten Charakter heilen. Möchtest Du fortfahren?
+
+$MessageDone	Erledigt
+
+
+$SLCoiSTDLice	Läuse (GK)
+$SLCoiSTDLiceDebuff	Juckreiz der Liebenden
+$SLCoiSTDLiceDebuffDesc	Verringerte Magicka und Ausdauer Regenerationsrate 
+
+$SLCoiSTDLiceInfectionMessage	Du hast dich mit dem Juckreiz der Liebenden infiziert
+$SLCoiSTDLiceCureMessage	Du wurdest vom Juckreiz der Liebenden geheilt
+
+$SLCoiSTDLiceSeverityReductionMessage	Now that you've cleaned yourself it feels less itchy
+
+$SLCoiSTDLiceSeverity	Lice Severity Faction
+$SLCoiSTDLiceRegenDebuff	Magicka- und Ausdauerminderung
+$SLCoiSTDLiceMildRegenDebuffDesc	Magicka- und Ausdauer-Regenerationsrate um 5% verringert
+$SLCoiSTDLiceUnnervingRegenDebuffDesc	Magicka- und Ausdauer-Regenerationsrate um 10% verringert
+$SLCoiSTDLiceSevereRegenDebuffDesc	Magicka- und Ausdauer-Regenerationsrate um 15% verringert
+
+$SLCoiSTDLiceCurePotion	Juckreiz der Liebenden Heilung
