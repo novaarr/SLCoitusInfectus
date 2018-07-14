@@ -476,7 +476,7 @@ function SetupPageStatus()
     "")
 
   AddTextOption(                                                              \
-    SexLabUtil.StringIfElse(System.BathingInSkyrim != None,                   \
+    SexLabUtil.StringIfElse(System.BiSSupport,                                \
       ColoredText("$STATUSSUPPORTBIS", COLOR_GREEN),                          \
       "$STATUSSUPPORTBIS"                                                     \
     ),                                                                        \

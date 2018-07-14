@@ -41,6 +41,9 @@ int property OptInfectionCause auto
 ; Dependencies
 bool property DepPapyrusUtil auto
 
+; Support
+bool property BiSSupport = false auto
+
 ; Internal
 Actor property PlayerRef auto
 SexLabFramework property SexLab auto
@@ -56,7 +59,7 @@ string SettingsFile = "slcoitusinfectus-config.json"
 ; Support for mods starting scenes
 DefeatConfig SLDefeatConfig = None
 zadLibs SLDeviousDevicesLib = None
-mzinBatheQuest property BathingInSkyrim = None auto
+mzinBatheQuest BathingInSkyrim = None
 
 ; BathingInSkyrim Registered keys (in case they get changed)
 int BiSBathCode = 0
@@ -81,6 +84,7 @@ function LoadSupportedMods()
   if(BiS)
     DebugMessage("Detected: Bathing in Skyrim")
     BathingInSkyrim = BiS as mzinBatheQuest
+    BiSSupport = true
     BiSBathCode = BathingInSkyrim.BatheKeyCode.GetValueInt()
     BiSShowerCode = BathingInSkyrim.ShowerKeyCode.GetValueInt()
   endIf
@@ -90,6 +94,7 @@ function UnloadSupportedMods()
   SLDefeatConfig = None
   SLDeviousDevicesLib = None
   BathingInSkyrim = None
+  BiSSupport = false
 endFunction
 
 bool function DependencyCheck()
@@ -133,7 +138,7 @@ function Setup(bool isCellLoad = false)
   RegisterForModEvent(ModEventTry, "OnTryInfectActor")
 
   ; Key events
-  RegisterForKey(BiSBathCode)
+  RegisterForKey(BiSBathCode) ; TODO: -1
 	RegisterForKey(BiSShowerCode)
 
   DebugMessage("Running")
@@ -304,7 +309,7 @@ function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor targetA
     return
   endIf
 
-  DebugMessage(targetActor.GetDisplayName()                           \
+  DebugMessage(targetActor.GetDisplayName()                                   \
     + " has been infected with "                                              \
     + infection.GetName() + " by " + infectingActor.GetDisplayName())
 
@@ -529,7 +534,7 @@ endEvent
 
 ; Registered Keys
 event OnKeyDown(int code)
-  if(BathingInSkyrim)
+  if(BiSSupport)
     ; Will only work if key stays the same or after cell change / load game
     int liceSeverityReduction = 0
 
