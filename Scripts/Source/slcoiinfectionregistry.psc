@@ -34,15 +34,15 @@ function DisableAll()
 endFunction
 
 bool function IsMajorInfection(SLCoiInfection infection)
-  if(infection == Vampirism)
+  if(infection.GetName() == Vampirism.GetName())
     return true
   endIf
 
-  if(infection == Lycanthropy)
+  if(infection.GetName() == Lycanthropy.GetName())
     return true
   endIf
 
-  if(infection == SuccubusCurse)
+  if(infection.GetName() == SuccubusCurse.GetName())
     return true
   endif
 
