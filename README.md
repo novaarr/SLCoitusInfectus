@@ -14,6 +14,7 @@ Currently there is support for English, German and Russian. If you translate it 
 - Lice:
   - Will reduce Stamina and Magicka regeneration rate by 5% / 10% / 15%, depending on the severity, which will increase over time
   - The severity can be reduced by cleaning the character (Bathing in Skyrim)
+  - You can cure yourself through a potion obtained from containers. The potions will be added randomly (You can set the probability for that in the MCM menu)
 
 ## Requirements
 
