@@ -609,6 +609,13 @@ function SetupPageSettings()
       "$SettingsInfectionProbabilityNPC",                                     \
       System.Infections.Lice.NonPlayerProbability,                            \
       "$SettingsInfectionProbabilityFormat")
+  
+  oidSettingsInfectionLiceFakeNPCProbability =                                \
+    AddSliderOption(                                                          \
+      "$SettingsFakeNPCInfectionProbability",                                 \
+      System.Infections.Lice.NonPlayerFakeInfectionProbability,               \
+      "$SettingsFakeNPCInfectionProbabilityFormat"                            \
+    )
 
   oidSettingsInfectionLiceSeverityIncrease =                                  \
     AddSliderOption(                                                          \
@@ -629,13 +636,6 @@ function SetupPageSettings()
       "$SettingsSTDLiceSevereThreshold",                                      \
       System.Infections.Lice.SevereThreshold.GetValue(),                      \
       "$SettingsSTDLiceThresholdFormat"                                       \
-    )
-
-  oidSettingsInfectionLiceFakeNPCProbability =                                \
-    AddSliderOption(                                                          \
-      "$SettingsFakeNPCInfectionProbability",                                 \
-      System.Infections.Lice.NonPlayerFakeInfectionProbability,               \
-      "$SettingsFakeNPCInfectionProbabilityFormat"                            \
     )
 
   oidSettingsInfectionLiceBathing =                                           \
