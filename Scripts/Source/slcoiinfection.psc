@@ -39,8 +39,11 @@ string function GetName()
 endFunction
 
 function Enable()
-  int pos = 0
-  while(pos < System.Actors.Count())
+  int pos = System.Actors.Count()
+
+  while(pos)
+    pos -= 1
+
     Actor registeredActor = System.Actors.Get(pos)
 
     if(registeredActor != None) ; ??
@@ -49,21 +52,19 @@ function Enable()
         Apply(registeredActor, registeredActor)
       endIf
     endif
-
-    pos += 1
   endwhile
 endFunction
 
 function Disable()
-  int pos = 0
-  while(pos < System.Actors.Count())
+  int pos = System.Actors.Count()
+  while(pos)
+    pos -= 1
+
     Actor registeredActor = System.Actors.Get(pos)
 
     if(registeredActor != None) ; ??
       Cure(registeredActor, unregisterActor = false)
     endIf
-
-    pos += 1
   endwhile
 endFunction
 
@@ -130,7 +131,7 @@ bool function Cure(Actor target, bool unregisterActor = true)
       CureMessageRef.Show()
     endIf
 
-    System.DebugMessage(target.GetActorBase().GetName() + " has been cured of " + GetName())
+    System.DebugMessage(target.GetDisplayName() + " has been cured of " + GetName())
   endIf
 
   return wasCured
@@ -195,7 +196,7 @@ function determineFakeProbability(Actor target)
   if(random <= NonPlayerFakeInfectionProbability)
     System.Actors.SetFakeInfected(target, self)
 
-    System.DebugMessage("NPC (" + target.GetActorBase().GetName() + ")"       \
+    System.DebugMessage("NPC (" + target.GetDisplayName() + ")"       \
     + "is infected with " + GetName() + " (fake)")
 
   else

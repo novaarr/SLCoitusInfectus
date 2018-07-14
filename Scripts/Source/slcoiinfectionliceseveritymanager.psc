@@ -24,7 +24,7 @@ endEvent
 
 int function UpdateSeverity()
   Faction severityFaction = System.Infections.Lice.SeverityFaction
-  string infectedActorName = infectedActor.GetActorBase().GetName()
+  string infectedActorName = infectedActor.GetDisplayName()
 
   ; determine time difference in hours
   float currentTime = Utility.GetCurrentGameTime() * 24.0

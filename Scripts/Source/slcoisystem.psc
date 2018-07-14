@@ -179,15 +179,15 @@ endFunction
 function Uninstall()
   int i = Actors.Count()
 
-  while(i > 0)
-    Actor target = Actors.Get(i - 1)
+  while(i)
+    i -= 1
+
+    Actor target = Actors.Get(i)
 
     CureInfections(target)
 
     Actors.Clear(target)
     Actors.Unregister(target)
-
-    i -= 1
   endWhile
 
   Enabled = false
@@ -291,22 +291,22 @@ function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor targetA
 
   if(Infections.isMajorInfection(infection)                                   \
   && Infections.hasMajorInfection(targetActor))
-    DebugMessage(targetActor.GetActorBase().GetName() + " already infected with"\
+    DebugMessage(targetActor.GetDisplayName() + " already infected with"\
     + " a major infection (tried infection "+infection.GetName()+").")
     return
   endIf
 
   if(infection.hasProbabilityOccurred(targetActor != PlayerRef))
-    DebugMessage("Probability occurred for " + targetActor.GetActorBase().GetName())
+    DebugMessage("Probability occurred for " + targetActor.GetDisplayName())
   endIf
 
   if(!infection.Apply(infectingActor, targetActor))
     return
   endIf
 
-  DebugMessage(targetActor.GetActorBase().GetName()                           \
+  DebugMessage(targetActor.GetDisplayName()                           \
     + " has been infected with "                                              \
-    + infection.GetName() + " by " + infectingActor.GetActorBase().GetName())
+    + infection.GetName() + " by " + infectingActor.GetDisplayName())
 
   if(targetActor == PlayerRef && OptNPCInfections)
     TryInfect(infection, targetActor, infectingActor)
@@ -393,47 +393,46 @@ function WaitForSceneEnd(Actor target)
 
   sslThreadController thread = SexLabThreadSlots.GetActorController(target)
 
-  int totalSceneWaitTime = 0
+  int totalSceneWaitTime = MaxSceneWaitTime
 
   ; SexLAb
   if(thread)
-    while(thread.IsLocked && totalSceneWaitTime < MaxSceneWaitTime)
-
+    while(thread.IsLocked && totalSceneWaitTime)
       DebugMessage("Waiting, Animations still active (SexLab)")
 
       Utility.Wait(SceneWaitTime)
-      totalSceneWaitTime += SceneWaitTime
+      totalSceneWaitTime -= SceneWaitTime
     endWhile
   endIf
 
   ; Devious Devices
-  while(SLDeviousDevicesLib.isAnimating(target)                            \
-  && totalSceneWaitTime < MaxSceneWaitTime)
+  while(SLDeviousDevicesLib.isAnimating(target)                               \
+  && totalSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (DDi)")
 
     Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime += SceneWaitTime
+    totalSceneWaitTime -= SceneWaitTime
   endWhile
 
   ; Defeat
   while(SLDefeatConfig                                                        \
-  && SLDefeatConfig.IsDefeatActive(target)                                 \
-  && totalSceneWaitTime < MaxSceneWaitTime)
+  && SLDefeatConfig.IsDefeatActive(target)                                    \
+  && totalSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (Defeat)")
 
     Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime += SceneWaitTime
+    totalSceneWaitTime -= SceneWaitTime
   endWhile
 
   ; Devious Cursed Loot
-  while(DeviousCursedLootRunning(target) && totalSceneWaitTime < MaxSceneWaitTime)
+  while(DeviousCursedLootRunning(target) && totalSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (Devious Cursed Loot)")
 
     Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime += SceneWaitTime
+    totalSceneWaitTime -= SceneWaitTime
   endWhile
 endFunction
 
@@ -450,8 +449,10 @@ event OnSexLabAnimationStart(Form anActor, int threadId)
   endIf
 
   ; Cycle through invovlved actors
-  int pos = 0
-  while(pos < thread.Positions.Length)
+  int pos = thread.Positions.Length
+  while(pos)
+    pos -= 1
+
     Actor currentActor = thread.Positions[pos]
 
     if(currentActor != PlayerRef)
@@ -460,8 +461,6 @@ event OnSexLabAnimationStart(Form anActor, int threadId)
       TryFakeInfect(Infections.SuccubusCurse, currentActor)
 
     endIf
-
-    pos += 1
   endWhile
 endEvent
 
@@ -483,15 +482,15 @@ event OnSexLabAnimationEnd(Form anActor, int threadId)
   endIf
 
   ; Infect participating actors
-  int pos = 0
-  while(pos < thread.Positions.Length)
+  int pos = thread.Positions.Length
+  while(pos)
+    pos -= 1
+
     Actor currentActor = thread.Positions[pos]
 
     if(currentActor != PlayerRef)
       SendModEventTry(threadId, currentActor)
     endIf
-
-    pos += 1
   endWhile
 endEvent
 
@@ -504,7 +503,7 @@ event OnTryInfectActor(int threadId, Form NonPlayerForm)
   WaitForSceneEnd(PlayerRef)
 
   ; In combat?
-  if(NonPlayer.IsInCombat()                                                      \
+  if(NonPlayer.IsInCombat()                                                   \
   && NonPlayer.GetCombatTarget() == PlayerRef)
     wasInCombatWithTarget = true
 

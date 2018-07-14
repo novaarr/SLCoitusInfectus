@@ -111,15 +111,15 @@ function Cleanup()
     return
   endIf
 
-  while(pos > 0)
-    Actor registeredActor = Get(pos - 1)
+  while(pos)
+    pos -= 1
+
+    Actor registeredActor = Get(pos)
 
     if(registeredActor.IsDead())
       Clear(registeredActor)
       Unregister(registeredActor)
     endIf
-
-    pos -= 1
   endwhile
 endFunction
 

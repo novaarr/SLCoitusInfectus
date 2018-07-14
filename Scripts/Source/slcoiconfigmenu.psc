@@ -412,7 +412,7 @@ event OnOptionMenuOpen(int option)
 
     int i = 0
     while(i < tempNearbyActors.Length)
-      actorNames[i] = tempNearbyActors[i].GetActorBase().GetName()
+      actorNames[i] = tempNearbyActors[i].GetDisplayName()
       i += 1
     endWhile
 
@@ -609,7 +609,7 @@ function SetupPageSettings()
       "$SettingsInfectionProbabilityNPC",                                     \
       System.Infections.Lice.NonPlayerProbability,                            \
       "$SettingsInfectionProbabilityFormat")
-  
+
   oidSettingsInfectionLiceFakeNPCProbability =                                \
     AddSliderOption(                                                          \
       "$SettingsFakeNPCInfectionProbability",                                 \

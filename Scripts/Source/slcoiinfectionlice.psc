@@ -138,7 +138,7 @@ endFunction
 
 function LessenSeverityOnCleaning(Actor target, int reduction)
   if(target.HasMagicEffect(SeverityReductionCooldownRef))
-    System.DebugMessage("Lice (" +target.GetActorBase().GetName()+"): "       \
+    System.DebugMessage("Lice (" +target.GetDisplayName()+"): "       \
       + "Unable to lessen severity: Cooldown active")
     return
   endIf
@@ -149,7 +149,7 @@ function LessenSeverityOnCleaning(Actor target, int reduction)
     reducedSeverity = 0
   endIf
 
-  System.DebugMessage("Lice (" +target.GetActorBase().GetName()+"): "         \
+  System.DebugMessage("Lice (" +target.GetDisplayName()+"): "         \
     + "Severity will be reduced through cleaning to " + reducedSeverity)
 
   target.SetFactionRank(SeverityFaction, reducedSeverity)
