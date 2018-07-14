@@ -56,6 +56,10 @@ DefeatConfig SLDefeatConfig = None
 zadLibs SLDeviousDevicesLib = None
 mzinBatheQuest property BathingInSkyrim = None auto
 
+; BathingInSkyrim Registered keys (in case they get changed)
+int BiSBathCode = 0
+int BiSShowerCode = 0
+
 ; System
 function LoadSupportedMods()
   Quest Defeat = Quest.GetQuest("DefeatRessourcesQst")
@@ -75,6 +79,8 @@ function LoadSupportedMods()
   if(BiS)
     DebugMessage("Detected: Bathing in Skyrim")
     BathingInSkyrim = BiS as mzinBatheQuest
+    BiSBathCode = BathingInSkyrim.BatheKeyCode.GetValueInt()
+    BiSShowerCode = BathingInSkyrim.ShowerKeyCode.GetValueInt()
   endIf
 endFunction
 
@@ -117,8 +123,8 @@ function Setup(bool isCellLoad = false)
   RegisterForModEvent("PlayerTrack_End", "OnSexLabAnimationEnd")
   RegisterForModEvent(ModEventTry, "OnTryInfectActor")
 
-  RegisterForKey(BathingInSkyrim.BatheKeyCode.GetValueInt())
-	RegisterForKey(BathingInSkyrim.ShowerKeyCode.GetValueInt())
+  RegisterForKey(BiSBathCode)
+	RegisterForKey(BiSShowerCode)
 
   DebugMessage("Running")
 endFunction
@@ -126,8 +132,8 @@ endFunction
 function Shutdown(bool soft = false)
   DebugMessage("Shutdown")
 
-  UnregisterForKey(BathingInSkyrim.BatheKeyCode.GetValueInt())
-	UnregisterForKey(BathingInSkyrim.ShowerKeyCode.GetValueInt())
+  UnregisterForKey(BiSBathCode)
+	UnregisterForKey(BiSShowerCode)
 
   UnregisterForModEvent("OnSexLabAnimationStart")
   UnregisterForModEvent("OnSexLabAnimationEnd")
@@ -206,9 +212,9 @@ function SettingsImport()
   Infections.Lice.SeverityIncreasePerHour = JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.SeverityIncreasePerHour")
   Infections.Lice.UnnervingThreshold.SetValue(JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.UnnervingThreshold"))
   Infections.Lice.SevereThreshold.SetValue(JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.SevereThreshold"))
-  Infections.Lice.SeverityReductionBathing = JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.SeverityReductionBathing")
-  Infections.Lice.SeverityReductionShowering = JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.SeverityReductionShowering")
-  Infections.Lice.SeverityReductionSoapBonus = JsonUtil.GetIntValue(SettingsFile, "Infection.Lice.SeverityReductionSoapBonus")
+  Infections.Lice.SeverityReductionBathingMultiplier = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionBathingMultiplier")
+  Infections.Lice.SeverityReductionShoweringMultiplier = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionShoweringMultiplier")
+  Infections.Lice.SeverityReductionSoapBonusMultiplier = JsonUtil.GetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionSoapBonusMultiplier")
 
   DebugMessage("Settings imported")
 endFunction
@@ -240,9 +246,9 @@ function SettingsExport()
   JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.SeverityIncreasePerHour", Infections.Lice.SeverityIncreasePerHour)
   JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.UnnervingThreshold", Infections.Lice.UnnervingThreshold.GetValue() as int)
   JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.SevereThreshold", Infections.Lice.SevereThreshold.GetValue() as int)
-  JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.SeverityReductionBathing", Infections.Lice.SeverityReductionBathing)
-  JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.SeverityReductionShowering", Infections.Lice.SeverityReductionShowering)
-  JsonUtil.SetIntValue(SettingsFile, "Infection.Lice.SeverityReductionSoapBonus", Infections.Lice.SeverityReductionSoapBonus)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionBathingMultiplier", Infections.Lice.SeverityReductionBathingMultiplier)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionShoweringMultiplier", Infections.Lice.SeverityReductionShoweringMultiplier)
+  JsonUtil.SetFloatValue(SettingsFile, "Infection.Lice.SeverityReductionSoapBonusMultiplier", Infections.Lice.SeverityReductionSoapBonusMultiplier)
 
   if(JsonUtil.Save(SettingsFile))
     DebugMessage("Settings exported")
@@ -359,18 +365,24 @@ bool function DeviousCursedLootRunning(Actor target)
 endFunction
 
 function WaitForSceneEnd(Actor target)
+  if(target == None)
+    return
+  endIf
+
   sslThreadController thread = SexLabThreadSlots.GetActorController(target)
 
   int totalSceneWaitTime = 0
 
   ; SexLAb
-  while(thread.IsLocked && totalSceneWaitTime < MaxSceneWaitTime)
+  if(thread)
+    while(thread.IsLocked && totalSceneWaitTime < MaxSceneWaitTime)
 
-    DebugMessage("Waiting, Animations still active (SexLab)")
+      DebugMessage("Waiting, Animations still active (SexLab)")
 
-    Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime += SceneWaitTime
-  endWhile
+      Utility.Wait(SceneWaitTime)
+      totalSceneWaitTime += SceneWaitTime
+    endWhile
+  endIf
 
   ; Devious Devices
   while(SLDeviousDevicesLib.isAnimating(target)                            \
@@ -494,28 +506,34 @@ endEvent
 
 ; Registered Keys
 event OnKeyDown(int code)
-  ; Will only work if key stays the same or after cell change / load game
-  if(BathingInSkyrim && BathingInSkyrim.BatheKeyCode.GetValueInt() == code)
-    Utility.Wait(5)
+  if(BathingInSkyrim)
+    ; Will only work if key stays the same or after cell change / load game
+    int liceSeverityReduction = 0
 
-    if(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayBatheAnimationWithSoap))
-      Infections.Lice.LessenSeverityOnBathing(PlayerRef, withSoap = true)
+    if(BathingInSkyrim.BatheKeyCode.GetValueInt() == code)
+      Utility.Wait(5)
 
-    elseIf(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayBatheAnimationWithoutSoap))
-      Infections.Lice.LessenSeverityOnBathing(PlayerRef)
+      if(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayBatheAnimationWithSoap))
+        liceSeverityReduction = Infections.Lice.CalcReduction(isBathing = true, withSoap = true)
 
+      elseIf(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayBatheAnimationWithoutSoap))
+        liceSeverityReduction = Infections.Lice.CalcReduction(isBathing = true)
+
+      endIf
+    elseif(BathingInSkyrim.ShowerKeyCode.GetValueInt() == code)
+      Utility.Wait(5)
+
+      if(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayShowerAnimationWithSoap))
+        liceSeverityReduction = Infections.Lice.CalcReduction(isShowering = true, withSoap = true)
+
+      elseIf(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayShowerAnimationWithoutSoap))
+        liceSeverityReduction = Infections.Lice.CalcReduction(isShowering = true)
+
+      endIf
     endIf
-  endIf
 
-  if(BathingInSkyrim && BathingInSkyrim.ShowerKeyCode.GetValueInt() == code)
-    Utility.Wait(5)
-
-    if(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayShowerAnimationWithSoap))
-      Infections.Lice.LessenSeverityOnShowering(PlayerRef, withSoap = true)
-
-    elseIf(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayShowerAnimationWithoutSoap))
-      Infections.Lice.LessenSeverityOnShowering(PlayerRef)
-
+    if(liceSeverityReduction > 0)
+      Infections.Lice.LessenSeverityOnCleaning(PlayerRef, liceSeverityReduction)
     endIf
   endIf
 endEvent

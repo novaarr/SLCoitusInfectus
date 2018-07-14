@@ -1,12 +1,14 @@
 scriptname SLCoiInfectionLice extends SLCoiInfection hidden
 
 ; TODO:
-;   Implement: Cure (Ingame)
-;   Fix: Magic Effect does not change dynamically, only on load
-;   Bathing/Showering: Add Cooldown
+;   Implement: Cure
+;   Maybe: Add messages each time severity is increased
 
-Spell property RegenDebuffSpellRef auto
-MagicEffect property SeverityManagerRef auto
+Spell property SeverityManagerSpellRef auto
+
+Spell property MildRegenDebuffSpellRef auto
+Spell property UnnervingRegenDebuffSpellRef auto
+Spell property SevereRegenDebuffSpellRef auto
 
 ; Severity: Increment
 int property SeverityIncreasePerHour auto
@@ -20,19 +22,23 @@ GlobalVariable property SevereThreshold auto
 int property DefaultSevereThreshold auto
 
 ; Severity: Reduction
-int property SeverityReductionBathing auto
-int property DefaultSeverityReductionBathing auto
+float property SeverityReductionBathingMultiplier auto
+float property DefaultSeverityReductionBathingMultiplier auto
 
-int property SeverityReductionShowering auto
-int property DefaultSeverityReductionShowering auto
+float property SeverityReductionShoweringMultiplier auto
+float property DefaultSeverityReductionShoweringMultiplier auto
 
-int property SeverityReductionSoapBonus auto
-int property DefaultSeverityReductionSoapBonus auto
+float property SeverityReductionSoapBonusMultiplier auto
+float property DefaultSeverityReductionSoapBonusMultiplier auto
 
 Message property SeverityReductionMessage auto
 
 ; Severity: Faction
 Faction property SeverityFaction auto
+
+; Severity: Cooldown
+Spell property SeverityReductionCooldownSpellRef auto
+MagicEffect property SeverityReductionCooldownRef auto
 
 ; Severity: Related Animations
 string[] property AnimationsMild auto
@@ -49,9 +55,10 @@ bool function InfectPlayer(Actor infectingActor)
 endFunction
 
 bool function InfectNonPlayer(Actor infectingActor, Actor target)
-  target.AddSpell(RegenDebuffSpellRef, false)
   target.AddToFaction(SeverityFaction)
   target.SetFactionRank(SeverityFaction, 0)
+  target.AddSpell(SeverityManagerSpellRef, false)
+  target.AddSpell(MildRegenDebuffSpellRef, false)
 
   return IsInfected(target)
 endFunction
@@ -61,8 +68,11 @@ bool function CurePlayer()
 endFunction
 
 bool function CureNonPlayer(Actor target)
-  target.DispelSpell(RegenDebuffSpellRef)
-  target.RemoveSpell(RegenDebuffSpellRef)
+  target.RemoveSpell(SeverityManagerSpellRef)
+  target.RemoveSpell(MildRegenDebuffSpellRef)
+  target.RemoveSpell(UnnervingRegenDebuffSpellRef)
+  target.RemoveSpell(SevereRegenDebuffSpellRef)
+  target.RemoveSpell(SeverityReductionCooldownSpellRef)
 
   target.RemoveFromFaction(SeverityFaction)
 
@@ -74,59 +84,107 @@ bool function IsInfected(Actor target, bool includeFakeInfection = true)
     return true
   endIf
 
-  return  target.HasMagicEffect(SeverityManagerRef)
+  return target.IsInFaction(SeverityFaction)
 endFunction
 
 ; Infection
-function LessenSeverityOnBathing(Actor target, bool withSoap = false)
-  int severityCurrent = target.GetFactionRank(SeverityFaction)
-  int severityReduction = SeverityReductionBathing
+function ResetRegenDebuffSpell(Actor target, int severity)
+  int thresholdUnnerving = UnnervingThreshold.GetValue() as int
+  int thresholdSevere = SevereThreshold.GetValue() as int
+
+  ; remove active debuffs
+  target.RemoveSpell(MildRegenDebuffSpellRef)
+  target.RemoveSpell(UnnervingRegenDebuffSpellRef)
+  target.RemoveSpell(SevereRegenDebuffSpellRef)
+
+  ; apply debuff related to severity
+  if(severity < thresholdUnnerving)
+    target.AddSpell(MildRegenDebuffSpellRef, false)
+
+  elseIf(severity >= thresholdUnnerving && severity < thresholdSevere)
+    target.AddSpell(UnnervingRegenDebuffSpellRef, false)
+
+  else
+    target.AddSpell(SevereRegenDebuffSpellRef, false)
+  endIf
+endFunction
+
+int function CalcReduction(bool isBathing = false, bool isShowering = false, bool withSoap = false)
+  if(isBathing && isShowering)
+    return 0
+  endIf
+
+  float soapBonusMult = 1.0
+  float reductionMult = 1.0
+
+  if(isBathing)
+    reductionMult = SeverityReductionBathingMultiplier
+  elseIf(isShowering)
+    reductionMult = SeverityReductionShoweringMultiplier
+  endIf
 
   if(withSoap)
-    severityReduction += SeverityReductionSoapBonus
+    soapBonusMult = SeverityReductionSoapBonusMultiplier
+  endIf
+
+  return Math.abs(SeverityIncreasePerHour * (soapBonusMult * reductionMult)) as int
+endFunction
+
+function LessenSeverityOnCleaning(Actor target, int reduction)
+  if(target.HasMagicEffect(SeverityReductionCooldownRef))
+    System.DebugMessage("Lice (" +target.GetActorBase().GetName()+"): "       \
+      + "Unable to lessen severity: Cooldown active")
+    return
+  endIf
+
+  int reducedSeverity = target.GetFactionRank(SeverityFaction) - reduction
+
+  if(reducedSeverity < 0)
+    reducedSeverity = 0
   endIf
 
   System.DebugMessage("Lice (" +target.GetActorBase().GetName()+"): "         \
-    + "Severity will be reduced through bathing by " + severityReduction)
+    + "Severity will be reduced through cleaning to " + reducedSeverity)
 
-  target.SetFactionRank(SeverityFaction, severityCurrent - severityReduction)
+  target.SetFactionRank(SeverityFaction, reducedSeverity)
 
-  SeverityReductionMessage.Show()
-endFunction
-
-function LessenSeverityOnShowering(Actor target, bool withSoap = false)
-  int severityCurrent = target.GetFactionRank(SeverityFaction)
-  int severityReduction = SeverityReductionShowering
-
-  if(withSoap)
-    severityReduction += SeverityReductionSoapBonus
-  endIf
-
-  System.DebugMessage("Lice (" +target.GetActorBase().GetName()+"): "         \
-    + "Severity will be reduced through showering by " + severityReduction)
-
-  target.SetFactionRank(SeverityFaction, severityCurrent - severityReduction)
+  ResetRegenDebuffSpell(target, reducedSeverity)
 
   SeverityReductionMessage.Show()
+
+  target.AddSpell(SeverityReductionCooldownSpellRef, false)
 endFunction
 
-function StartAnimation(float severity, Actor target)
+function StartAnimation(Actor target, float severity)
   string animation = ""
 
-  return ; not yet implemented
+  if(!target)
+    return
+  endIf
 
-  if(severity < UnnervingThreshold.GetValue())
+  ; get a random scene
+  if(AnimationsMild.Length > 0                                                \
+  && severity < UnnervingThreshold.GetValue())
+
     int random = Utility.RandomInt(0, AnimationsMild.Length - 1)
     animation = AnimationsMild[random]
 
-  elseIf(severity >= UnnervingThreshold.GetValue() && severity < SevereThreshold.GetValue())
+  elseIf(AnimationsUnnerving.Length > 0                                       \
+  && severity >= UnnervingThreshold.GetValue()                                \
+  && severity < SevereThreshold.GetValue())
+
     int random = Utility.RandomInt(0, AnimationsUnnerving.Length - 1)
     animation = AnimationsUnnerving[random]
 
-  else
+  elseIf(AnimationsSevere.Length > 0                                          \
+  && severity >= SevereThreshold.GetValue())
     int random = Utility.RandomInt(0, AnimationsSevere.Length - 1)
     animation = AnimationsSevere[random]
 
+  endIf
+
+  if(animation == "")
+    return
   endIf
 
   ; wait for other scenes to end

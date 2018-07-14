@@ -113,6 +113,11 @@ event OnOptionHighlight(int option)
   elseIf(option == oidMiscCleanupInterval)
     SetInfoText("$MiscCleanupIntervalHint")
 
+  elseIf(option == oidSettingsInfectionLiceBathing                            \
+  ||    option == oidSettingsInfectionLiceShowering                           \
+  ||    option == oidSettingsInfectionLiceSoap)
+    SetInfoText("$SettingsSTDLiceSeverityReductionHint")
+
   endIf
 endEvent
 
@@ -300,22 +305,22 @@ event OnOptionSliderOpen(int option)
     SetSliderDialogRange(1.0, 18000.0) ; 1s to 5d
 
   elseIf(option == oidSettingsInfectionLiceBathing)
-    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionBathing)
-    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionBathing)
-    SetSliderDialogInterval(1)
-    SetSliderDialogRange(0, 50)
+    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionBathingMultiplier)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionBathingMultiplier)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(1.0, 3.0)
 
   elseIf(option == oidSettingsInfectionLiceShowering)
-    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionShowering)
-    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionShowering)
-    SetSliderDialogInterval(1)
-    SetSliderDialogRange(0, 50)
+    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionShoweringMultiplier)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionShoweringMultiplier)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(1.0, 2.0)
 
   elseIf(option == oidSettingsInfectionLiceSoap)
-    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionSoapBonus)
-    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionSoapBonus)
-    SetSliderDialogInterval(1)
-    SetSliderDialogRange(0, 25)
+    SetSliderDialogStartValue(System.Infections.Lice.SeverityReductionSoapBonusMultiplier)
+    SetSliderDialogDefaultValue(System.Infections.Lice.DefaultSeverityReductionSoapBonusMultiplier)
+    SetSliderDialogInterval(0.01)
+    SetSliderDialogRange(1.0, 3.0)
 
   endIf
 endEvent
@@ -361,13 +366,13 @@ event OnOptionSliderAccept(int option, float value)
     System.Infections.Lice.NonPlayerFakeInfectionProbability = value
 
   elseIf(option == oidSettingsInfectionLiceBathing)
-    System.Infections.Lice.SeverityReductionBathing = value as int
+    System.Infections.Lice.SeverityReductionBathingMultiplier = value
 
   elseIf(option == oidSettingsInfectionLiceShowering)
-    System.Infections.Lice.SeverityReductionShowering = value as int
+    System.Infections.Lice.SeverityReductionShoweringMultiplier = value
 
   elseIf(option == oidSettingsInfectionLiceSoap)
-    System.Infections.Lice.SeverityReductionSoapBonus = value as int
+    System.Infections.Lice.SeverityReductionSoapBonusMultiplier = value
 
   elseIf(option == oidMiscCleanupInterval)
     System.Actors.CleanupInterval = value
@@ -617,21 +622,21 @@ function SetupPageSettings()
   oidSettingsInfectionLiceBathing =                                           \
     AddSliderOption(                                                          \
       "$SettingsSTDLiceSeverityReductionBathing",                             \
-      System.Infections.Lice.SeverityReductionBathing,                        \
+      System.Infections.Lice.SeverityReductionBathingMultiplier,              \
       "$SettingsSTDLiceSeverityReductionFormat"                               \
     )
 
   oidSettingsInfectionLiceShowering =                                         \
     AddSliderOption(                                                          \
       "$SettingsSTDLiceSeverityReductionShowering",                           \
-      System.Infections.Lice.SeverityReductionShowering,                      \
+      System.Infections.Lice.SeverityReductionShoweringMultiplier,            \
       "$SettingsSTDLiceSeverityReductionFormat"                               \
     )
 
   oidSettingsInfectionLiceSoap =                                              \
     AddSliderOption(                                                          \
       "$SettingsSTDLiceSeverityReductionSoapBonus",                           \
-      System.Infections.Lice.SeverityReductionSoapBonus,                      \
+      System.Infections.Lice.SeverityReductionSoapBonusMultiplier,            \
       "$SettingsSTDLiceSeverityReductionFormat"                               \
     )
 
