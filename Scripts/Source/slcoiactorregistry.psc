@@ -116,7 +116,7 @@ function Cleanup()
 
     Actor registeredActor = Get(pos)
 
-    if(registeredActor.IsDead())
+    if(registeredActor && registeredActor.IsDead())
       Clear(registeredActor)
       Unregister(registeredActor)
     endIf
