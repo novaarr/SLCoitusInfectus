@@ -1,9 +1,6 @@
 scriptname SLCoiInfectionLice extends SLCoiInfection hidden
 
-; TODO:
-;   Notification that severity has been increased
-
-; ypsShavingKnife
+Spell property NPCBehaviorSpellRef auto
 
 Spell property SeverityManagerSpellRef auto
 
@@ -105,12 +102,18 @@ function Unload()
 endFunction
 
 bool function InfectPlayer(Actor infectingActor)
-  return InfectNonPlayer(infectingActor, System.PlayerRef)
+  System.PlayerRef.AddToFaction(SeverityFaction)
+  System.PlayerRef.SetFactionRank(SeverityFaction, 0)
+  System.PlayerRef.AddSpell(SeverityManagerSpellRef, false)
+  System.PlayerRef.AddSpell(MildRegenDebuffSpellRef, false)
+
+  return IsInfected(System.PlayerRef)
 endFunction
 
 bool function InfectNonPlayer(Actor infectingActor, Actor target)
   target.AddToFaction(SeverityFaction)
   target.SetFactionRank(SeverityFaction, 0)
+  target.AddSpell(NPCBehaviorSpellRef, false)
   target.AddSpell(SeverityManagerSpellRef, false)
   target.AddSpell(MildRegenDebuffSpellRef, false)
 
@@ -118,7 +121,13 @@ bool function InfectNonPlayer(Actor infectingActor, Actor target)
 endFunction
 
 bool function CurePlayer()
-  return CureNonPlayer(System.PlayerRef)
+  System.PlayerRef.RemoveSpell(SeverityManagerSpellRef)
+  System.PlayerRef.RemoveSpell(MildRegenDebuffSpellRef)
+  System.PlayerRef.RemoveSpell(UnnervingRegenDebuffSpellRef)
+  System.PlayerRef.RemoveSpell(SevereRegenDebuffSpellRef)
+  System.PlayerRef.RemoveSpell(SeverityReductionCooldownSpellRef)
+
+  System.PlayerRef.RemoveFromFaction(SeverityFaction)
 endFunction
 
 bool function CureNonPlayer(Actor target)
@@ -127,6 +136,7 @@ bool function CureNonPlayer(Actor target)
   target.RemoveSpell(UnnervingRegenDebuffSpellRef)
   target.RemoveSpell(SevereRegenDebuffSpellRef)
   target.RemoveSpell(SeverityReductionCooldownSpellRef)
+  target.RemoveSpell(NPCBehaviorSpellRef)
 
   target.RemoveFromFaction(SeverityFaction)
 
