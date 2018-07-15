@@ -321,17 +321,18 @@ endFunction
 ; Support: BiS
 function OnPlayerMagicEffectApplyBiS(ObjectReference caster, MagicEffect meRef)
   int liceSeverityReduction = 0
+  string meName = meRef.GetName()
 
-  if(meRef.GetName() == BiSBathSoapEffectName)
+  if(meName == BiSBathSoapEffectName)
     liceSeverityReduction = CalcReduction(isBathing = true, withSoap = true)
 
-  elseIf(meRef.GetName() == BiSBathNoSoapEffectName)
+  elseIf(meName == BiSBathNoSoapEffectName)
     liceSeverityReduction = CalcReduction(isBathing = true)
 
-  elseif(meRef.GetName() == BiSShowerSoapEffectName)
+  elseif(meName == BiSShowerSoapEffectName)
       liceSeverityReduction = CalcReduction(isShowering = true, withSoap = true)
 
-  elseIf(meRef.GetName() == BiSShowerNoSoapEffectName)
+  elseIf(meName == BiSShowerNoSoapEffectName)
     liceSeverityReduction = CalcReduction(isShowering = true)
 
   endIf
