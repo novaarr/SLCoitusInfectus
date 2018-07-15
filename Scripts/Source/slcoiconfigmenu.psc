@@ -476,6 +476,13 @@ function SetupPageStatus()
     "")
 
   AddTextOption(                                                              \
+    SexLabUtil.StringIfElse(System.Infections.Lice.YPSSupport,                \
+      ColoredText("$STATUSSUPPORTYPS", COLOR_GREEN),                          \
+      "$STATUSSUPPORTYPS"                                                     \
+    ),                                                                        \
+    "")
+
+  AddTextOption(                                                              \
     SexLabUtil.StringIfElse(System.BiSSupport,                                \
       ColoredText("$STATUSSUPPORTBIS", COLOR_GREEN),                          \
       "$STATUSSUPPORTBIS"                                                     \

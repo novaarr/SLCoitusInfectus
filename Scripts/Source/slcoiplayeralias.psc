@@ -13,3 +13,14 @@ event OnCellLoad()
 
   System.Setup(isCellLoad = true)
 EndEvent
+
+event OnObjectEquipped(Form baseObject, ObjectReference ref)
+  if(!System.Enabled)
+    return
+  endIf
+
+  ; Lice: yps Support
+  if(System.Infections.Lice.Enabled)
+    System.Infections.Lice.OnPlayerObjectEquipped(baseObject, ref)
+  endIf
+endEvent

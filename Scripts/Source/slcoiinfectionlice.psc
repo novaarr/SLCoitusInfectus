@@ -3,6 +3,8 @@ scriptname SLCoiInfectionLice extends SLCoiInfection hidden
 ; TODO:
 ;   Notification that severity has been increased
 
+; ypsShavingKnife
+
 Spell property SeverityManagerSpellRef auto
 
 Spell property MildRegenDebuffSpellRef auto
@@ -51,9 +53,28 @@ string[] property AnimationsMild auto
 string[] property AnimationsUnnerving auto
 string[] property AnimationsSevere auto
 
+; Support
+bool property YPSSupport auto
+string YPSShavingKnife = "Shaving Knife"
+string YPSShavingCream = "Shaving Cream"
+
 ; SLCoiInfection
 string function GetName()
   return "Lice"
+endFunction
+
+function Load()
+  if(Quest.GetQuest("YPS01"))
+    YPSSupport = true
+
+    System.DebugMessage("Detected: YPS")
+  else
+    YPSSupport = false
+  endIf
+endFunction
+
+function Unload()
+  YPSSupport = false
 endFunction
 
 bool function InfectPlayer(Actor infectingActor)
@@ -214,4 +235,65 @@ function HandleContainerActivation(ObjectReference activationContainer)
   activationContainer.AddItem(CurePotionRef, 1, true)
 
   System.DebugMessage("Lice: Added cure to container")
+endFunction
+
+function HandleShaving(Actor target) ; TODO: recognize shaved parts
+  int totalSceneWaitTime = System.MaxSceneWaitTime
+  Form ShavingCreamForm = ActorGetItemWithFormName(target, YPSShavingCream)
+
+  if(!ShavingCreamForm)
+    System.DebugMessage("Lice("+target.GetDisplayName()+"): "                 \
+      + "No Shaving Cream was found (YPS). Aborting.")
+
+    return
+  endIf
+
+  int ShavingCreamAmount = target.GetItemCount(ShavingCreamForm)
+
+  while(ShavingCreamAmount == target.GetItemCount(ShavingCreamForm)           \
+  && totalSceneWaitTime)
+    Utility.Wait(System.SceneWaitTime)
+    totalSceneWaitTime -= System.SceneWaitTime
+  endWhile
+
+  if(ShavingCreamAmount != target.GetItemCount(ShavingCreamForm))
+    System.DebugMessage("Lice("+target.GetDisplayName()+"): "                 \
+      + "Shaving Cream was used, actor is/was shaving")
+
+    Cure(target)
+  else
+    System.DebugMessage("Lice("+target.GetDisplayName()+"): "                 \
+      + "Shaving Cream wasn't reduced, shaving has probably been aborted")
+  endIf
+endFunction
+
+; Diverted Actor Events
+function OnPlayerObjectEquipped(Form baseObject, ObjectReference ref)
+  if(!System.Infections.Lice.YPSSupport)
+    return
+  endIf
+
+  if(baseObject.GetName() == YPSShavingKnife)
+    System.DebugMessage("Lice("+System.PlayerRef.GetDisplayName()+"): "       \
+      + "Equipped Shaving Knife (YPS)")
+
+    System.Infections.Lice.HandleShaving(System.PlayerRef)
+  endIf
+endFunction
+
+; Utility
+Form function ActorGetItemWithFormName(Actor target, string id)
+  int pos = target.GetNumItems()
+
+  while(pos)
+    pos -= 1
+
+    Form itemForm = target.GetNthForm(pos)
+
+    if(itemForm.GetName() == id)
+      return itemForm
+    endIf
+  endWhile
+
+  return None
 endFunction
