@@ -115,6 +115,7 @@ function Setup(bool isCellLoad = false)
   ; check for dependencies
   if(!DependencyCheck())
     DebugMessage("ERROR: Dependencies not found. Make sure to meet the requirements!")
+    isEnabled = false
     return
   endIf
 
@@ -413,7 +414,8 @@ function WaitForSceneEnd(Actor target)
   endIf
 
   ; Devious Devices
-  while(SLDeviousDevicesLib.isAnimating(target)                               \
+  while(SLDeviousDevicesLib                                                   \
+  && SLDeviousDevicesLib.isAnimating(target)                                  \
   && totalSceneWaitTime)
 
     DebugMessage("Waiting, Animations still active (DDi)")
