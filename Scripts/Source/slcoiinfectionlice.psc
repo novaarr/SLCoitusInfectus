@@ -54,6 +54,9 @@ string[] property AnimationsUnnerving auto
 string[] property AnimationsSevere auto
 
 ; Support
+bool property ESDSupport auto
+string ESDWashBodyEffectName = "Play Wash Body"
+
 bool property YPSSupport auto
 string YPSShavingKnife = "Shaving Knife"
 string YPSShavingCream = "Shaving Cream"
@@ -71,10 +74,19 @@ function Load()
   else
     YPSSupport = false
   endIf
+
+  if(Quest.GetQuest("aaaKNNMCMQuest"))
+    ESDSupport = true
+
+    System.DebugMessage("Detected: Eating Sleeping Drinking")
+  else
+    ESDSupport = false
+  endIf
 endFunction
 
 function Unload()
   YPSSupport = false
+  ESDSupport = false
 endFunction
 
 bool function InfectPlayer(Actor infectingActor)
@@ -268,7 +280,7 @@ function HandleShaving(Actor target) ; TODO: recognize shaved parts
 endFunction
 
 ; Diverted Actor Events
-function OnPlayerObjectEquipped(Form baseObject, ObjectReference ref)
+function OnPlayerObjectEquipped(Form baseObject, ObjectReference objRef)
   if(!System.Infections.Lice.YPSSupport)
     return
   endIf
@@ -279,6 +291,30 @@ function OnPlayerObjectEquipped(Form baseObject, ObjectReference ref)
 
     System.Infections.Lice.HandleShaving(System.PlayerRef)
   endIf
+endFunction
+
+function OnPlayerMagicEffectApply(ObjectReference caster, MagicEffect meRef)
+  if(!System.Infections.Lice.ESDSupport)
+    return
+  endIf
+
+  if(meRef.GetName() != ESDWashBodyEffectName)
+    return
+  endIf
+
+  System.DebugMessage("Lice("+System.PlayerRef.GetDisplayName()+"): "         \
+    + "Washing through Eating Sleeping Drinking detected")
+
+  ; randomizing: bath/shower/soap
+  bool isBathing = Utility.RandomInt(0, 1) as bool
+  bool isShowering = !isBathing
+  bool withSoap = Utility.RandomInt(0, 1) as bool
+
+  ; calc reduction
+  int reduction = CalcReduction(isBathing, isShowering, withSoap)
+
+  ; update severity
+  LessenSeverityOnCleaning(System.PlayerRef, reduction)
 endFunction
 
 ; Utility
