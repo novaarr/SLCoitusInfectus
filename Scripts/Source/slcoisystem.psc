@@ -42,7 +42,6 @@ int property OptInfectionCause auto
 bool property DepPapyrusUtil auto
 
 ; Support State
-bool property BiSSupport = false auto
 bool property DefeatSupport = false auto
 bool property DeviousDevicesSupport = false auto
 
@@ -61,17 +60,11 @@ string SettingsFile = "slcoitusinfectus-config.json"
 ; Support for mods starting scenes
 DefeatConfig SLDefeatConfig = None
 zadLibs SLDeviousDevicesLib = None
-mzinBatheQuest BathingInSkyrim = None
-
-; BathingInSkyrim Registered keys (in case they get changed)
-int BiSBathCode = 0
-int BiSShowerCode = 0
 
 ; System
 function LoadSupportedMods()
   Quest Defeat = Quest.GetQuest("DefeatRessourcesQst")
   Quest DDi = Quest.GetQuest("zadQuest")
-  Quest BiS = Quest.GetQuest("mzinBatheQuest")
 
   if(Defeat)
     DebugMessage("Detected: Defeat")
@@ -88,16 +81,6 @@ function LoadSupportedMods()
   else
     DeviousDevicesSupport = false
   endIf
-
-  if(BiS)
-    DebugMessage("Detected: Bathing in Skyrim")
-    BathingInSkyrim = BiS as mzinBatheQuest
-    BiSSupport = true
-    BiSBathCode = BathingInSkyrim.BatheKeyCode.GetValueInt()
-    BiSShowerCode = BathingInSkyrim.ShowerKeyCode.GetValueInt()
-  else
-    BiSSupport = false
-  endIf
 endFunction
 
 function UnloadSupportedMods()
@@ -106,9 +89,6 @@ function UnloadSupportedMods()
 
   SLDeviousDevicesLib = None
   DeviousDevicesSupport = false
-
-  BathingInSkyrim = None
-  BiSSupport = false
 endFunction
 
 bool function DependencyCheck()
@@ -152,10 +132,6 @@ function Setup(bool isCellLoad = false)
   RegisterForModEvent("PlayerTrack_End", "OnSexLabAnimationEnd")
   RegisterForModEvent(ModEventTry, "OnTryInfectActor")
 
-  ; Key events
-  RegisterForKey(BiSBathCode) ; TODO: -1
-	RegisterForKey(BiSShowerCode)
-
   DebugMessage("Running")
 endFunction
 
@@ -164,10 +140,6 @@ function Shutdown(bool soft = false)
 
   ; Container watchdog
   PlayerRef.RemovePerk(ContainerWatchdog)
-
-  ; Key events
-  UnregisterForKey(BiSBathCode)
-	UnregisterForKey(BiSShowerCode)
 
   ; Mod events
   UnregisterForModEvent("OnSexLabAnimationStart")
@@ -549,40 +521,6 @@ event OnTryInfectActor(int threadId, Form NonPlayerForm)
   if(wasInCombatWithTarget && !NonPlayer.IsDead() && !PlayerRef.IsDead())
     Utility.Wait(SceneWaitTime * 5) ; wait a little
     NonPlayer.StartCombat(PlayerRef)
-  endIf
-endEvent
-
-; Registered Keys
-event OnKeyDown(int code)
-  if(BiSSupport)
-    ; Will only work if key stays the same or after cell change / load game
-    int liceSeverityReduction = 0
-
-    if(BathingInSkyrim.BatheKeyCode.GetValueInt() == code)
-      Utility.Wait(5)
-
-      if(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayBatheAnimationWithSoap))
-        liceSeverityReduction = Infections.Lice.CalcReduction(isBathing = true, withSoap = true)
-
-      elseIf(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayBatheAnimationWithoutSoap))
-        liceSeverityReduction = Infections.Lice.CalcReduction(isBathing = true)
-
-      endIf
-    elseif(BathingInSkyrim.ShowerKeyCode.GetValueInt() == code)
-      Utility.Wait(5)
-
-      if(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayShowerAnimationWithSoap))
-        liceSeverityReduction = Infections.Lice.CalcReduction(isShowering = true, withSoap = true)
-
-      elseIf(HasAndWaitForSpellRemoval(PlayerRef, BathingInSkyrim.PlayShowerAnimationWithoutSoap))
-        liceSeverityReduction = Infections.Lice.CalcReduction(isShowering = true)
-
-      endIf
-    endIf
-
-    if(liceSeverityReduction > 0)
-      Infections.Lice.LessenSeverityOnCleaning(PlayerRef, liceSeverityReduction)
-    endIf
   endIf
 endEvent
 
