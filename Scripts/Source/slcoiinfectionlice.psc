@@ -54,6 +54,12 @@ string[] property AnimationsUnnerving auto
 string[] property AnimationsSevere auto
 
 ; Support
+bool property BiSSupport auto
+string BiSShowerSoapEffectName = "Shower with Soap"
+string BiSShowerNoSoapEffectName = "Shower without Soap"
+string BiSBathSoapEffectName = "Bathe with Soap"
+string BiSBathNoSoapEffectName = "Bathe without Soap"
+
 bool property ESDSupport auto
 string ESDWashBodyEffectName = "Play Wash Body"
 
@@ -82,11 +88,20 @@ function Load()
   else
     ESDSupport = false
   endIf
+
+  if(Quest.GetQuest("mzinBatheQuest"))
+    BiSSupport = true
+
+    System.DebugMessage("Detected: Bathing in Skyrim")
+  else
+    BiSSupport = false
+  endIf
 endFunction
 
 function Unload()
   YPSSupport = false
   ESDSupport = false
+  BiSSupport = false
 endFunction
 
 bool function InfectPlayer(Actor infectingActor)
@@ -294,10 +309,40 @@ function OnPlayerObjectEquipped(Form baseObject, ObjectReference objRef)
 endFunction
 
 function OnPlayerMagicEffectApply(ObjectReference caster, MagicEffect meRef)
-  if(!System.Infections.Lice.ESDSupport)
-    return
+  if(System.Infections.Lice.ESDSupport)
+    OnPlayerMagicEffectApplyESD(caster, meRef)
   endIf
 
+  if(System.Infections.Lice.BiSSupport)
+    OnPlayerMagicEffectApplyBiS(caster, meRef)
+  endIf
+endFunction
+
+; Support: BiS
+function OnPlayerMagicEffectApplyBiS(ObjectReference caster, MagicEffect meRef)
+  int liceSeverityReduction = 0
+
+  if(meRef.GetName() == BiSBathSoapEffectName)
+    liceSeverityReduction = CalcReduction(isBathing = true, withSoap = true)
+
+  elseIf(meRef.GetName() == BiSBathNoSoapEffectName)
+    liceSeverityReduction = CalcReduction(isBathing = true)
+
+  elseif(meRef.GetName() == BiSShowerSoapEffectName)
+      liceSeverityReduction = CalcReduction(isShowering = true, withSoap = true)
+
+  elseIf(meRef.GetName() == BiSShowerNoSoapEffectName)
+    liceSeverityReduction = CalcReduction(isShowering = true)
+
+  endIf
+
+  if(liceSeverityReduction > 0)
+    LessenSeverityOnCleaning(System.PlayerRef, liceSeverityReduction)
+  endIf
+endFunction
+
+; Support: ESD
+function OnPlayerMagicEffectApplyESD(ObjectReference caster, MagicEffect meRef)
   if(meRef.GetName() != ESDWashBodyEffectName)
     return
   endIf

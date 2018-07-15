@@ -490,7 +490,7 @@ function SetupPageStatus()
     "")
 
   AddTextOption(                                                              \
-    SexLabUtil.StringIfElse(System.BiSSupport,                                \
+    SexLabUtil.StringIfElse(System.Infections.Lice.BiSSupport,                \
       ColoredText("$STATUSSUPPORTBIS", COLOR_GREEN),                          \
       "$STATUSSUPPORTBIS"                                                     \
     ),                                                                        \
