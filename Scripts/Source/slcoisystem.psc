@@ -41,8 +41,10 @@ int property OptInfectionCause auto
 ; Dependencies
 bool property DepPapyrusUtil auto
 
-; Support
+; Support State
 bool property BiSSupport = false auto
+bool property DefeatSupport = false auto
+bool property DeviousDevicesSupport = false auto
 
 ; Internal
 Actor property PlayerRef auto
@@ -74,11 +76,17 @@ function LoadSupportedMods()
   if(Defeat)
     DebugMessage("Detected: Defeat")
     SLDefeatConfig = Defeat as DefeatConfig
+    DefeatSupport = true
+  else
+    DefeatSupport = false
   endIf
 
   if(DDi)
     DebugMessage("Detected: Devious Devices Integration (DDi)")
     SLDeviousDevicesLib = DDi as zadLibs
+    DeviousDevicesSupport = true
+  else
+    DeviousDevicesSupport = false
   endIf
 
   if(BiS)
@@ -87,12 +95,18 @@ function LoadSupportedMods()
     BiSSupport = true
     BiSBathCode = BathingInSkyrim.BatheKeyCode.GetValueInt()
     BiSShowerCode = BathingInSkyrim.ShowerKeyCode.GetValueInt()
+  else
+    BiSSupport = false
   endIf
 endFunction
 
 function UnloadSupportedMods()
   SLDefeatConfig = None
+  DefeatSupport = false
+
   SLDeviousDevicesLib = None
+  DeviousDevicesSupport = false
+
   BathingInSkyrim = None
   BiSSupport = false
 endFunction
@@ -414,26 +428,30 @@ function WaitForSceneEnd(Actor target)
   endIf
 
   ; Devious Devices
-  while(SLDeviousDevicesLib                                                   \
-  && SLDeviousDevicesLib.isAnimating(target)                                  \
-  && totalSceneWaitTime)
+  if(DeviousDevicesSupport)
+    while(SLDeviousDevicesLib                                                 \
+    && SLDeviousDevicesLib.isAnimating(target)                                \
+    && totalSceneWaitTime)
 
-    DebugMessage("Waiting, Animations still active (DDi)")
+      DebugMessage("Waiting, Animations still active (DDi)")
 
-    Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime -= SceneWaitTime
-  endWhile
+      Utility.Wait(SceneWaitTime)
+      totalSceneWaitTime -= SceneWaitTime
+    endWhile
+  endIf
 
   ; Defeat
-  while(SLDefeatConfig                                                        \
-  && SLDefeatConfig.IsDefeatActive(target)                                    \
-  && totalSceneWaitTime)
+  if(DefeatSupport)
+    while(SLDefeatConfig                                                      \
+    && SLDefeatConfig.IsDefeatActive(target)                                  \
+    && totalSceneWaitTime)
 
-    DebugMessage("Waiting, Animations still active (Defeat)")
+      DebugMessage("Waiting, Animations still active (Defeat)")
 
-    Utility.Wait(SceneWaitTime)
-    totalSceneWaitTime -= SceneWaitTime
-  endWhile
+      Utility.Wait(SceneWaitTime)
+      totalSceneWaitTime -= SceneWaitTime
+    endWhile
+  endIf
 
   ; Devious Cursed Loot
   while(DeviousCursedLootRunning(target) && totalSceneWaitTime)
