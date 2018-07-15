@@ -22,6 +22,8 @@ event OnUpdateGameTime()
     return
   endIf
 
+  RegisterForSingleUpdateGameTime(1.0)
+
   if(NPC.IsInCombat()                                                         \
   || NPC.IsInDialogueWithPlayer())
     return
@@ -32,8 +34,6 @@ event OnUpdateGameTime()
   if(decideToDoSomething)
     TryToLessenSeverity()
   endIf
-
-  RegisterForSingleUpdateGameTime(1.0)
 endEvent
 
 function TryToLessenSeverity()
