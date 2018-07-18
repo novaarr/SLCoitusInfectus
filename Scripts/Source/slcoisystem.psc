@@ -37,6 +37,7 @@ endProperty
 
 bool property OptNPCInfections auto
 int property OptInfectionCause auto
+float property OptDelayedInfectionTime auto
 
 ; Dependencies
 bool property DepPapyrusUtil auto
@@ -201,6 +202,7 @@ function SettingsImport()
   OptInfectionCause = JsonUtil.GetIntValue(SettingsFile, "General.InfectionCause")
   OptNPCInfections = JsonUtil.GetIntValue(SettingsFile, "General.NPCInfections") as bool
   OptDebug = JsonUtil.GetIntValue(SettingsFile, "General.Debug") as bool
+  OptDelayedInfectionTime = JsonUtil.GetFloatValue(SettingsFile, "General.DelayedInfectionTime")
 
   Infections.Vampirism.Enabled = JsonUtil.GetIntValue(SettingsFile, "Infection.Vampirism.Enabled") as bool
   Infections.Vampirism.NonPlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Vampirism.NonPlayerProbability")
@@ -236,6 +238,7 @@ function SettingsExport()
   JsonUtil.SetIntValue(SettingsFile, "General.InfectionCause", OptInfectionCause)
   JsonUtil.SetIntValue(SettingsFile, "General.NPCInfections", OptNPCInfections as int)
   JsonUtil.SetIntValue(SettingsFile, "General.Debug", OptDebug as int)
+  JsonUtil.SetFloatValue(SettingsFile, "General.DelayedInfectionTime", OptDelayedInfectionTime)
 
   JsonUtil.SetIntValue(SettingsFile, "Infection.Vampirism.Enabled", Infections.Vampirism.Enabled as int)
   JsonUtil.SetFloatValue(SettingsFile, "Infection.Vampirism.NonPlayerProbability", Infections.Vampirism.NonPlayerProbability)

@@ -34,6 +34,10 @@ float property DefaultNonPlayerFakeInfectionProbability auto
 Message property InfectionMessageRef auto
 Message property CureMessageRef auto
 
+; Delay
+Spell property DelayedInfectionApplicationRef auto
+MagicEffect property DelayedInfectionEffectRef auto
+
 string function GetName()
   return "" ; Infection Name (Unique!)
 endFunction
@@ -79,11 +83,17 @@ endFunction
 bool function Apply(Actor infectingActor, Actor target)
   bool wasInfected = false
 
-  if(target == System.PlayerRef)
-    wasInfected = InfectPlayer(infectingActor)
+  if(System.OptDelayedInfectionTime > 0 && DelayedInfectionApplicationRef)
+    target.AddSpell(DelayedInfectionApplicationRef, false)
+
+    wasInfected = true
   else
-    wasInfected = InfectNonPlayer(infectingActor, target)
-  endIf
+    if(target == System.PlayerRef)
+      wasInfected = InfectPlayer(infectingActor)
+    else
+      wasInfected = InfectNonPlayer(infectingActor, target)
+    endIf
+  endif
 
   if(wasInfected)
     System.Actors.RegisterInfection(target, self)
@@ -147,6 +157,10 @@ endFunction
 
 bool function IsInfected(Actor target, bool includeFakeInfection = true)
   if(hasFakeProbabilityOccurred(target) && includeFakeInfection)
+    return true
+  endIf
+
+  if(target.HasMagicEffect(DelayedInfectionEffectRef))
     return true
   endIf
 

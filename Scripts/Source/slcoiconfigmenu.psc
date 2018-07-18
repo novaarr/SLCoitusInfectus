@@ -15,6 +15,8 @@ int oidStatusActive = -1
 
 int oidSettingsNPCInfections = -1
 
+int oidSettingsDelayedInfection = -1
+
 int oidSettingsInfectionTypeLycanthropyEnabled = -1
 int oidSettingsInfectionTypeVampirismEnabled = -1
 int oidSettingsInfectionTypeSuccubusCurseEnabled = -1
@@ -120,8 +122,10 @@ event OnOptionHighlight(int option)
     SetInfoText("$SettingsSTDLiceSeverityReductionHint")
 
   elseIf(option == oidSettingsInfectionLiceContainerProbability)
-    SetInfoText("$$SettingsSTDLiceContainerContainsCureHint")
+    SetInfoText("$SettingsSTDLiceContainerContainsCureHint")
 
+  elseIf(option == oidSettingsDelayedInfection)
+    SetInfoText("$SettingsDelayedInfectionHint")
 
   endIf
 endEvent
@@ -219,8 +223,15 @@ event OnOptionSelect(int option)
 endEvent
 
 event OnOptionSliderOpen(int option)
+  ; Delayed Infection
+  if(option == oidSettingsDelayedInfection)
+    SetSliderDialogStartValue(System.OptDelayedInfectionTime)
+    SetSliderDialogDefaultValue(0.0)
+    SetSliderDialogInterval(1.0)
+    SetSliderDialogRange(0.0, 72.0)
+
   ; PSQ
-  if(option == oidSettingsPSQNPCInfectionProbability)
+  elseif(option == oidSettingsPSQNPCInfectionProbability)
     ; simply use the same values as above, no need for further consts
     SetSliderDialogStartValue(System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability)
     SetSliderDialogDefaultValue(System.Infections.SuccubusCurse.DefaultNonPlayerFakeInfectionProbability)
@@ -337,8 +348,12 @@ event OnOptionSliderOpen(int option)
 endEvent
 
 event OnOptionSliderAccept(int option, float value)
+  ; Delayed Infection
+  if(option == oidSettingsDelayedInfection)
+    System.OptDelayedInfectionTime = value
+
   ; Lycanthropy
-  if(option == oidSettingsInfectionLycanthropyProbabilityPC)
+  elseif(option == oidSettingsInfectionLycanthropyProbabilityPC)
     System.Infections.Lycanthropy.PlayerProbability = value
 
   elseIf(option == oidSettingsInfectionLycanthropyProbabilityNPC)
@@ -507,6 +522,14 @@ function SetupPageSettings()
     AddToggleOption(                                                          \
       "$SettingsNPCInfections",                                               \
       System.OptNPCInfections                                                 \
+    )
+
+
+  oidSettingsDelayedInfection =                                               \
+    AddSliderOption(                                                          \
+      "$SettingsDelayedInfection",                                            \
+      System.OptDelayedInfectionTime,                                         \
+      "$SettingsDelayedInfectionHint"                                         \
     )
 
   AddEmptyOption()

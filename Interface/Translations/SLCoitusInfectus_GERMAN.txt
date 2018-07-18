@@ -23,6 +23,10 @@ $PageSettings	Einstellungen
 $SettingsNPCInfections	NPC Infektionen
 $SettingsNPCInfectionsHint	Erlaubt es NPCs durch den Spieler infiziert zu werden
 
+$SettingsDelayedInfection	Verzögerung der Infektion
+$SettingsDelayedInfectionFormat	{0}h
+$SettingsDelayedInfectionHint	Verzögert die Infektion normalerweiser direkt-einsetzende Infektionen
+
 $SettingsInfectionTypeLycanthropy	Lykanthropie Einstellungen
 $SettingsInfectionTypeVampirism	Vampirismus Einstellungen
 $SettingsInfectionTypeSuccubusCurse	Succubus Fluch Einstellungen
