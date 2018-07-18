@@ -84,7 +84,7 @@ bool function Apply(Actor infectingActor, Actor target)
   bool wasInfected = false
 
   if(System.OptDelayedInfectionTime > 0 && DelayedInfectionApplicationRef)
-    target.AddSpell(DelayedInfectionApplicationRef, false)
+    infectingActor.DoCombatSpellApply(DelayedInfectionApplicationRef, target)
 
     wasInfected = true
   else
