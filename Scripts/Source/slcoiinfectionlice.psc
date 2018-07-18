@@ -113,7 +113,7 @@ endFunction
 bool function InfectNonPlayer(Actor infectingActor, Actor target)
   target.AddToFaction(SeverityFaction)
   target.SetFactionRank(SeverityFaction, 0)
-  target.AddSpell(NPCBehaviorSpellRef, false)
+;  target.AddSpell(NPCBehaviorSpellRef, false)
   target.AddSpell(SeverityManagerSpellRef, false)
   target.AddSpell(MildRegenDebuffSpellRef, false)
 
@@ -136,7 +136,7 @@ bool function CureNonPlayer(Actor target)
   target.RemoveSpell(UnnervingRegenDebuffSpellRef)
   target.RemoveSpell(SevereRegenDebuffSpellRef)
   target.RemoveSpell(SeverityReductionCooldownSpellRef)
-  target.RemoveSpell(NPCBehaviorSpellRef)
+;  target.RemoveSpell(NPCBehaviorSpellRef)
 
   target.RemoveFromFaction(SeverityFaction)
 
