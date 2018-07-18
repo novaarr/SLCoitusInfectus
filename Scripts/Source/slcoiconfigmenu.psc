@@ -529,7 +529,7 @@ function SetupPageSettings()
     AddSliderOption(                                                          \
       "$SettingsDelayedInfection",                                            \
       System.OptDelayedInfectionTime,                                         \
-      "$SettingsDelayedInfectionHint"                                         \
+      "$SettingsDelayedInfectionFormat"                                       \
     )
 
   AddEmptyOption()
