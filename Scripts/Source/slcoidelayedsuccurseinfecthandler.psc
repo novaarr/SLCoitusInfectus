@@ -1,0 +1,7 @@
+scriptname SLCoiDelayedSucCurseInfectHandler extends SLCoiDelayedInfectionHandler
+
+SLCoiInfectionSuccubusCurse property Infection auto
+
+SLCoiInfection function GetInfection()
+  return Infection
+endFunction
