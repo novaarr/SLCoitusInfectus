@@ -61,7 +61,7 @@ int oidMiscUninstall = -1
 
 ; Version
 int function GetVersion()
-  return 2
+  return 3
 endFunction
 
 ; SkyUI MCM Events
@@ -73,7 +73,7 @@ endEvent
 
 event OnVersionUpdate(int version)
   if(version > CurrentVersion)
-    System.DebugMessage("New version")
+    System.Update(version, CurrentVersion)
   endIf
 endEvent
 

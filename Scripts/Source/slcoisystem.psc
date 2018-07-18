@@ -63,6 +63,12 @@ DefeatConfig SLDefeatConfig = None
 zadLibs SLDeviousDevicesLib = None
 
 ; System
+function Update(int new_version, int old_version)
+  if(new_version < 3)
+    ; TODO: Add behavior to already infected NPCs
+  endIf
+endFunction
+
 function LoadSupportedMods()
   Quest Defeat = Quest.GetQuest("DefeatRessourcesQst")
   Quest DDi = Quest.GetQuest("zadQuest")
