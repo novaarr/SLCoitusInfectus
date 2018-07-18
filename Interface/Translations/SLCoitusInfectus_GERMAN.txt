@@ -25,7 +25,7 @@ $SettingsNPCInfectionsHint	Erlaubt es NPCs durch den Spieler infiziert zu werden
 
 $SettingsDelayedInfection	Verzögerung der Infektion
 $SettingsDelayedInfectionFormat	{0}h
-$SettingsDelayedInfectionHint	Verzögert die Infektion normalerweiser direkt-einsetzende Infektionen
+$SettingsDelayedInfectionHint	Verzögert die Infektion normalerweiser direkt-einsetzende Infektionen (derzeit: Lykanthropie, Succubus Fluch; Ausnahme: Läuse) um Stunden
 
 $SettingsInfectionTypeLycanthropy	Lykanthropie Einstellungen
 $SettingsInfectionTypeVampirism	Vampirismus Einstellungen
@@ -105,3 +105,22 @@ $SLCoiSTDLiceUnnervingRegenDebuffDesc	Magicka- und Ausdauer-Regenerationsrate um
 $SLCoiSTDLiceSevereRegenDebuffDesc	Magicka- und Ausdauer-Regenerationsrate um 15% verringert
 
 $SLCoiSTDLiceCurePotion	Juckreiz der Liebenden Heilung
+
+
+$SLCoiDelayedLycanthropyInfection	Infiziert
+$SLCoiDelayedLycanthropyInfectionDesc	Wird zur Lykanthropie
+
+$SLCoiLycanthropyImmediateInfectionMessage	Du kannst den Mond rufen hören..
+$SLCoiLycanthropyInfectionProgressionMessage01	Du hättest beinahe den Mond angeheult
+$SLCoiLycanthropyInfectionProgressionMessage02	Ein Drang einen Hasen zu überkommt dich
+$SLCoiLycanthropyInfectionProgressionMessage03	Du schnupperst und würgst wegen dem nassen Fellgeruch
+$SLCoiLycanthropyInfectionProgressionMessage04	Du fühlst eine seltsame, neue Stärke 
+
+$SLCoiDelayedSuccubusCurse	Infected
+$SLCoiDelayedSuccubusCurseDesc	Wird zum Succubus Fluch
+
+$SLCoiSuccubusCurseImmediateInfectionMessage	Du fühlst ein Verlangen erwachen..
+$SLCoiSuccubusCurseInfectionProgressionMessage01	Wegdämmernd denkst Du an harte Dinge..
+$SLCoiSuccubusCurseInfectionProgressionMessage02	Deine ganze Kleidung irritiert dich auf einmal
+$SLCoiSuccubusCurseInfectionProgressionMessage03	Du fühlst etwas raubtierhaftes in deinem Verlangen
+$SLCoiSuccubusCurseInfectionProgressionMessage04	Es verlangt dich nach etwas, aber was..
