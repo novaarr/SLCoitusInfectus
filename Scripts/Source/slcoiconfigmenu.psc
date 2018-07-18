@@ -61,7 +61,7 @@ int oidMiscUninstall = -1
 
 ; Version
 int function GetVersion()
-  return 3
+  return 2
 endFunction
 
 ; SkyUI MCM Events

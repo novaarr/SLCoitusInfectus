@@ -160,7 +160,8 @@ bool function IsInfected(Actor target, bool includeFakeInfection = true)
     return true
   endIf
 
-  if(target.HasMagicEffect(DelayedInfectionEffectRef))
+  if(DelayedInfectionEffectRef                                                \
+  && target.HasMagicEffect(DelayedInfectionEffectRef))
     return true
   endIf
 
