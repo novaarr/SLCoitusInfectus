@@ -61,7 +61,7 @@ int oidMiscUninstall = -1
 
 ; Version
 int function GetVersion()
-  return 2
+  return 3
 endFunction
 
 ; SkyUI MCM Events
@@ -74,6 +74,17 @@ endEvent
 event OnVersionUpdate(int version)
   if(version > CurrentVersion)
     System.Update(version, CurrentVersion)
+  endIf
+
+  if CurrentVersion < 3
+    System.DebugMessage("MCM: Updating to version 3")
+    Pages = new string[5]
+
+    Pages[0] = "$PageStatus"
+    Pages[1] = "$PageGeneral"
+    Pages[2] = "$PageMajor"
+    Pages[3] = "$PageMinor"
+    Pages[4] = "$PageMisc"
   endIf
 endEvent
 
@@ -90,8 +101,14 @@ event OnPageReset(string a_page)
     SetupPageStatus()
   endIf
 
-  If(a_page == "$PageSettings")
-    SetupPageSettings()
+  If(a_page == "$PageGeneral")
+    SetupPageGeneral()
+
+  elseIf(a_page == "$PageMajor")
+    SetupPageMajor()
+
+  elseIf(a_page == "$PageMinor")
+    SetupPageMinor()
 
   elseIf(a_page == "$PageMisc")
     SetupPageMisc()
@@ -513,27 +530,11 @@ function SetupPageStatus()
 
 endFunction
 
-function SetupPageSettings()
+function SetupPageGeneral()
   SetCursorFillMode(TOP_TO_BOTTOM)
   SetCursorPosition(TOP_LEFT)
 
   ; General
-  oidSettingsNPCInfections =                                                  \
-    AddToggleOption(                                                          \
-      "$SettingsNPCInfections",                                               \
-      System.OptNPCInfections                                                 \
-    )
-
-
-  oidSettingsDelayedInfection =                                               \
-    AddSliderOption(                                                          \
-      "$SettingsDelayedInfection",                                            \
-      System.OptDelayedInfectionTime,                                         \
-      "$SettingsDelayedInfectionFormat"                                       \
-    )
-
-  AddEmptyOption()
-
   AddHeaderOption("$SettingsInfectionCauses")
 
   oidSettingsInfectionCauseVaginal =                                          \
@@ -551,8 +552,29 @@ function SetupPageSettings()
       "$SettingsInfectionCauseOral",                                          \
       Math.LogicalAnd(System.OptInfectionCause, System.InfectionCauseOral))
 
-  ; Infection: Lycanthropy
+  SetCursorPosition(TOP_RIGHT)
+
+  oidSettingsNPCInfections =                                                  \
+    AddToggleOption(                                                          \
+      "$SettingsNPCInfections",                                               \
+      System.OptNPCInfections                                                 \
+    )
+
   AddEmptyOption()
+
+  oidSettingsDelayedInfection =                                               \
+    AddSliderOption(                                                          \
+      "$SettingsDelayedInfection",                                            \
+      System.OptDelayedInfectionTime,                                         \
+      "$SettingsDelayedInfectionFormat"                                       \
+    )
+endFunction
+
+function SetupPageMajor()
+  SetCursorPosition(TOP_LEFT)
+  SetCursorFillMode(TOP_TO_BOTTOM)
+
+  ; Infection: Lycanthropy
   AddHeaderOption("$SettingsInfectionTypeLycanthropy")
 
   oidSettingsInfectionTypeLycanthropyEnabled =                                \
@@ -594,7 +616,8 @@ function SetupPageSettings()
       "$SettingsInfectionProbabilityFormat")
 
   ; Infection: Succubus Curse
-  AddEmptyOption()
+  SetCursorPosition(TOP_RIGHT)
+
   AddHeaderOption("$SettingsInfectionTypeSuccubusCurse")
 
   int SuccubusCurseEnableSwitchFlags = OPTION_FLAG_NONE
@@ -625,9 +648,13 @@ function SetupPageSettings()
     "$SettingsFakeNPCInfectionProbability",                                 \
     System.Infections.SuccubusCurse.NonPlayerFakeInfectionProbability,      \
     "$SettingsFakeNPCInfectionProbabilityFormat")
+endFunction
+
+function SetupPageMinor()
+  SetCursorPosition(TOP_LEFT)
+  SetCursorFillMode(TOP_TO_BOTTOM)
 
   ; Infection: Lice (STD)
-  SetCursorPosition(TOP_RIGHT)
   AddHeaderOption("$SLCoiSTDLice")
 
   oidSettingsInfectionTypeLiceEnabled =                                       \
@@ -702,7 +729,6 @@ function SetupPageSettings()
       System.Infections.Lice.ContainerContainsCureProbability,                \
       "$SettingsSTDLiceContainerContainsCureFormat"                           \
     )
-
 endFunction
 
 function SetupPageMisc()
