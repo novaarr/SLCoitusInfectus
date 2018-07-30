@@ -110,6 +110,14 @@ bool function IsInfectedVanilla(Actor anActor)
     return true
   endIf
 
+  if(QuestCompanions.Skjor.GetActorReference() == anActor                     \
+  || QuestCompanions.Aela.GetActorReference() == anActor                      \
+  || QuestCompanions.Farkas.GetActorReference() == anActor                    \
+  || QuestCompanions.Vilkas.GetActorReference() == anActor                    \
+  || QuestCompanions.Kodlak.GetActorReference() == anActor)
+    return true
+  endIf
+
   if(anActor.IsInFaction(QuestCompanions.CompanionsFaction))
     return true
   endIf
