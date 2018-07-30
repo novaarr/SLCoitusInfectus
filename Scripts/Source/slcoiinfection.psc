@@ -38,6 +38,8 @@ Message property CureMessageRef auto
 Spell property DelayedInfectionApplicationRef auto
 MagicEffect property DelayedInfectionEffectRef auto
 
+Message property DelayedInfectionMessageRef auto
+
 string function GetName()
   return "" ; Infection Name (Unique!)
 endFunction
@@ -80,30 +82,44 @@ endFunction
 function Unload()
 endFunction
 
-bool function Apply(Actor infectingActor, Actor target)
-  bool wasInfected = false
+bool function ApplyDelayed(Actor infectingActor, Actor target)
+  infectingActor.DoCombatSpellApply(DelayedInfectionApplicationRef, target)
 
-  if(System.OptDelayedInfectionTime > 0 && DelayedInfectionApplicationRef)
-    infectingActor.DoCombatSpellApply(DelayedInfectionApplicationRef, target)
-
-    wasInfected = true
-  else
-    if(target == System.PlayerRef)
-      wasInfected = InfectPlayer(infectingActor)
-    else
-      wasInfected = InfectNonPlayer(infectingActor, target)
-    endIf
-  endif
-
-  if(wasInfected)
-    System.Actors.RegisterInfection(target, self)
-
-    if(InfectionMessageRef && target == System.PlayerRef)
-      InfectionMessageRef.Show()
-    endIf
+  if(DelayedInfectionMessageRef)
+    DelayedInfectionMessageRef.Show()
   endIf
 
-  return wasInfected
+  return true
+endFunction
+
+bool function ApplyImmediately(Actor infectingActor, Actor target)
+  bool wasInfected = false
+
+  if(target == System.PlayerRef)
+    wasInfected = InfectPlayer(target)
+  else
+    wasInfected = InfectNonPlayer(infectingActor, target)
+  endIf
+
+  if(!wasInfected)
+    return false
+  endIf
+
+  System.Actors.RegisterInfection(target, self)
+
+  if(target == System.PlayerRef && InfectionMessageRef)
+    InfectionMessageRef.Show()
+  endIf
+
+  return true
+endFunction
+
+bool function Apply(Actor infectingActor, Actor target)
+  if(DelayedInfectionApplicationRef && System.OptDelayedInfectionTime > 0.0)
+    return ApplyDelayed(infectingActor, target)
+  else
+    return ApplyImmediately(infectingActor, target)
+  endIf
 endFunction
 
 bool function InfectPlayer(Actor infectingActor)
