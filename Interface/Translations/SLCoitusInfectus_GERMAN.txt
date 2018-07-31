@@ -21,7 +21,10 @@ $STATUSSUPPORTESD	Eating Sleeping Drinking
 $PageSettings	Einstellungen
 $PageGeneral	Allgemein
 $PageMajor	Größere Infektionen
-$PageMinor	Kleinere Infektionen
+$PageMinor	Mindere Infektionen
+
+$SettingsMajorImmunity	Großinfektions Immunitäten
+$SettingsMajorImmunityHint	Großinfektionen verhinden das Anstecken mit minderen Infektionen
 
 $SettingsNPCInfections	NPC Infektionen
 $SettingsNPCInfectionsHint	Erlaubt es NPCs durch den Spieler infiziert zu werden
