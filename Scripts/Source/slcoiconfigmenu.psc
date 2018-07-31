@@ -14,7 +14,7 @@ string COLOR_GREEN = "#55AA55"
 int oidStatusActive = -1
 
 int oidSettingsNPCInfections = -1
-
+int oidSettingsMajorImmunities = -1
 int oidSettingsDelayedInfection = -1
 
 int oidSettingsInfectionTypeLycanthropyEnabled = -1
@@ -117,7 +117,10 @@ event OnPageReset(string a_page)
 endEvent
 
 event OnOptionHighlight(int option)
-  if(option == oidSettingsInfectionTypeSuccubusCurseEnabled)
+  if(option == oidSettingsMajorImmunities)
+    SetInfoText("$SettingsMajorImmunitiesHint")
+
+  elseIf(option == oidSettingsInfectionTypeSuccubusCurseEnabled)
     SetInfoText("$SettingsInfectionTypeSuccubusCurseHint")
 
   elseIf(option == oidSettingsPSQNPCInfectionProbability                      \
@@ -176,12 +179,14 @@ event OnOptionSelect(int option)
     endIf
   endIf
 
-  ; do appropriate actions
   if(option == oidStatusActive)
     System.Enabled = !System.Enabled
 
   elseIf(option == oidSettingsNPCInfections)
     System.OptNPCInfections = !System.OptNPCInfections
+
+  elseIf(option == oidSettingsMajorImmunities)
+    System.OptMajorImmunities = !System.OptMajorImmunities
 
   ; Infection Activation
   elseIf(option == oidSettingsInfectionTypeLycanthropyEnabled)
@@ -567,6 +572,14 @@ function SetupPageGeneral()
       "$SettingsDelayedInfection",                                            \
       System.OptDelayedInfectionTime,                                         \
       "$SettingsDelayedInfectionFormat"                                       \
+    )
+
+  AddEmptyOption()
+
+  oidSettingsMajorImmunities =                                                \
+    AddToggleOption(                                                          \
+      "$SettingsMajorImmunities",                                             \
+      System.OptMajorImmunities                                               \
     )
 endFunction
 

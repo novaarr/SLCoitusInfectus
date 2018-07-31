@@ -38,6 +38,7 @@ endProperty
 bool property OptNPCInfections auto
 int property OptInfectionCause auto
 float property OptDelayedInfectionTime auto
+bool property OptMajorImmunities auto
 
 ; Dependencies
 bool property DepPapyrusUtil auto
@@ -209,6 +210,7 @@ function SettingsImport()
   OptNPCInfections = JsonUtil.GetIntValue(SettingsFile, "General.NPCInfections") as bool
   OptDebug = JsonUtil.GetIntValue(SettingsFile, "General.Debug") as bool
   OptDelayedInfectionTime = JsonUtil.GetFloatValue(SettingsFile, "General.DelayedInfectionTime")
+  OptMajorImmunities = JsonUtil.GetIntValue(SettingsFile, "General.MajorImmunities") as bool
 
   Infections.Vampirism.Enabled = JsonUtil.GetIntValue(SettingsFile, "Infection.Vampirism.Enabled") as bool
   Infections.Vampirism.NonPlayerProbability = JsonUtil.GetFloatValue(SettingsFile, "Infection.Vampirism.NonPlayerProbability")
@@ -245,6 +247,7 @@ function SettingsExport()
   JsonUtil.SetIntValue(SettingsFile, "General.NPCInfections", OptNPCInfections as int)
   JsonUtil.SetIntValue(SettingsFile, "General.Debug", OptDebug as int)
   JsonUtil.SetFloatValue(SettingsFile, "General.DelayedInfectionTime", OptDelayedInfectionTime)
+  JsonUtil.SetIntValue(SettingsFile, "General.MajorImmunites", OptMajorImmunities as int)
 
   JsonUtil.SetIntValue(SettingsFile, "Infection.Vampirism.Enabled", Infections.Vampirism.Enabled as int)
   JsonUtil.SetFloatValue(SettingsFile, "Infection.Vampirism.NonPlayerProbability", Infections.Vampirism.NonPlayerProbability)
@@ -290,6 +293,10 @@ function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor targetA
     return
   endIf
 
+  if(OptMajorImmunities && Infections.hasMajorInfection(targetActor))
+    return
+  endIf
+
   if(Infections.isMajorInfection(infection)                                   \
   && Infections.hasMajorInfection(targetActor))
     DebugMessage(targetActor.GetDisplayName() + " already infected with"\
@@ -308,10 +315,6 @@ function TryInfect(SLCoiInfection infection, Actor infectingActor, Actor targetA
   DebugMessage(targetActor.GetDisplayName()                                   \
     + " has been infected with "                                              \
     + infection.GetName() + " by " + infectingActor.GetDisplayName())
-
-  if(targetActor == PlayerRef && OptNPCInfections)
-    TryInfect(infection, targetActor, infectingActor)
-  endIf
 endFunction
 
 function TryFakeInfect(SLCoiInfection infection, Actor NonPlayer)
@@ -466,6 +469,9 @@ event OnSexLabAnimationStart(Form anActor, int threadId)
     if(currentActor != PlayerRef)
 
       TryFakeInfect(Infections.Lice, currentActor)
+      TryFakeInfect(Infections.Rabies, currentActor)
+      TryFakeInfect(Infections.Fungus, currentActor)
+
       TryFakeInfect(Infections.SuccubusCurse, currentActor)
 
     endIf
@@ -520,11 +526,18 @@ event OnTryInfectActor(int threadId, Form NonPlayerForm)
   endIf
 
   ; Try!
-  TryInfect(Infections.Vampirism, NonPlayer, PlayerRef)
-  TryInfect(Infections.Lycanthropy, NonPlayer, PlayerRef)
-  TryInfect(Infections.SuccubusCurse, NonPlayer, PlayerRef)
+  SLCoiInfection[] inf = Infections.GetInfections(reversed = true)
 
-  TryInfect(Infections.Lice, NonPlayer, PlayerRef)
+  int pos = inf.Length
+  while(pos)
+    pos -= 1
+
+    if(OptNPCInfections)
+      TryInfect(inf[pos], PlayerRef, NonPlayer)
+    endIf
+
+    TryInfect(inf[pos], NonPlayer, PlayerRef)
+  endWhile
 
   ; Restart combat
   if(wasInCombatWithTarget && !NonPlayer.IsDead() && !PlayerRef.IsDead())
